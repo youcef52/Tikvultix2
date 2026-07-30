@@ -1,0 +1,6 @@
+{
+  "name": "TikVultix",
+  "description": "تطبيق تنزيل فيديوهات وصور وموسيقى تيك توك بسرعة وبدون علامة مائية",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
