@@ -40,10 +40,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 
 data class LanguageItem(val code: String, val name: String)
 
@@ -94,10 +96,7 @@ fun SettingsScreen(
             .testTag("settings_screen"),
         color = Color.White
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // AppBar Header
+        Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -105,19 +104,16 @@ fun SettingsScreen(
                     .padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier.testTag("settings_back_button")
-                ) {
+                IconButton(onClick = onBack, modifier = Modifier.testTag("settings_back_button")) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.back),
                         tint = Color(0xFF1E1E24)
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "الإعدادات",
+                    text = stringResource(R.string.settings),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1E1E24)
@@ -125,13 +121,12 @@ fun SettingsScreen(
             }
 
             HorizontalDivider(color = Color(0xFFF1F3F5), thickness = 1.dp)
-
             Spacer(modifier = Modifier.height(8.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 SettingsRowSimple(
                     icon = Icons.Default.Public,
-                    title = "اللغة",
+                    title = stringResource(R.string.language),
                     subtitle = currentLangDisplay,
                     onClick = { showLanguageDialog = true },
                     tag = "setting_item_language"
@@ -145,7 +140,7 @@ fun SettingsScreen(
 
                 SettingsRowSimple(
                     icon = Icons.Default.Lock,
-                    title = "الخصوصية",
+                    title = stringResource(R.string.privacy),
                     subtitle = null,
                     onClick = onOpenPrivacy,
                     tag = "setting_item_privacy"
@@ -204,42 +199,18 @@ private fun SettingsRowSimple(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(1f)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                tint = Color(0xFF333333),
-                modifier = Modifier.size(24.dp)
-            )
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+            Icon(icon, contentDescription = title, tint = Color(0xFF333333), modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text(
-                    text = title,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF1E1E24)
-                )
+                Text(text = title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E1E24))
                 if (!subtitle.isNullOrEmpty()) {
                     Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = subtitle,
-                        fontSize = 13.sp,
-                        color = Color(0xFF888888),
-                        fontWeight = FontWeight.Normal
-                    )
+                    Text(text = subtitle, fontSize = 13.sp, color = Color(0xFF888888), fontWeight = FontWeight.Normal)
                 }
             }
         }
-
-        Icon(
-            imageVector = Icons.Default.ChevronLeft,
-            contentDescription = null,
-            tint = Color(0xFFCCCCCC),
-            modifier = Modifier.size(20.dp)
-        )
+        Icon(Icons.Default.ChevronLeft, contentDescription = null, tint = Color(0xFFCCCCCC), modifier = Modifier.size(20.dp))
     }
 }
 
@@ -257,7 +228,7 @@ fun LanguageSelectionDialog(
         shape = RoundedCornerShape(16.dp),
         title = {
             Text(
-                text = "اللغة",
+                text = stringResource(R.string.language),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1E1E24),
@@ -265,11 +236,7 @@ fun LanguageSelectionDialog(
             )
         },
         text = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 340.dp)
-            ) {
+            Box(modifier = Modifier.fillMaxWidth().heightIn(max = 340.dp)) {
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {
                     items(ALL_LANGUAGES, key = { it.code }) { lang ->
                         Row(
@@ -286,14 +253,10 @@ fun LanguageSelectionDialog(
                                 fontWeight = if (selectedCode == lang.code) FontWeight.Bold else FontWeight.Normal,
                                 color = if (selectedCode == lang.code) CrimsonActionColor else Color(0xFF222222)
                             )
-
                             RadioButton(
                                 selected = selectedCode == lang.code,
                                 onClick = { selectedCode = lang.code },
-                                colors = RadioButtonDefaults.colors(
-                                    selectedColor = CrimsonActionColor,
-                                    unselectedColor = Color(0xFFCCCCCC)
-                                )
+                                colors = RadioButtonDefaults.colors(selectedColor = CrimsonActionColor, unselectedColor = Color(0xFFCCCCCC))
                             )
                         }
                         HorizontalDivider(color = Color(0xFFF5F5F5))
@@ -303,31 +266,18 @@ fun LanguageSelectionDialog(
         },
         confirmButton = {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
                 TextButton(
                     onClick = { onLanguageSelected(selectedCode) },
                     modifier = Modifier.testTag("language_dialog_confirm_button")
                 ) {
-                    Text(
-                        text = "تغيير",
-                        color = CrimsonActionColor,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text(text = stringResource(R.string.change), color = CrimsonActionColor, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 }
-
                 Spacer(modifier = Modifier.width(8.dp))
-
                 TextButton(onClick = onDismiss) {
-                    Text(
-                        text = "إلغاء",
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
+                    Text(text = stringResource(R.string.cancel), color = Color.Gray, fontSize = 14.sp)
                 }
             }
         }
