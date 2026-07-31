@@ -1,7 +1,6 @@
 package com.example.ui
 
 import android.app.Application
-import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
@@ -20,7 +19,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -139,9 +137,17 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
             _isDownloading.value = true
             _downloadProgress.value = 0f
 
+            // ✅ تم إصلاح المقارنة
             val downloadUrl = when (mediaType) {
-                "video" -> if (option == "بدون علامة مائية") media.noWatermarkUrl else media.watermarkUrl
+                "video" -> {
+                    if (option == "no_watermark" || option == "بدون علامة مائية") {
+                        media.noWatermarkUrl
+                    } else {
+                        media.watermarkUrl
+                    }
+                }
                 "audio" -> media.audioUrl
+                "image" -> media.noWatermarkUrl
                 else -> media.noWatermarkUrl
             }
 
@@ -154,7 +160,6 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
             val success = downloadFile(downloadUrl, media, mediaType)
 
             if (success) {
-                // حفظ السجل في قاعدة البيانات
                 val newItem = DownloadItem(
                     originalUrl = _urlInput.value,
                     title = media.title,
@@ -173,7 +178,7 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
                 }
 
                 _downloadProgress.value = 1f
-                delay(500) // لحظة عشان يشوف المستخدم 100%
+                delay(500)
                 Toast.makeText(context, "تم التحميل بنجاح ✅", Toast.LENGTH_SHORT).show()
             } else {
                 _errorMessage.value = "فشل تحميل الملف"
@@ -197,7 +202,6 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
                 val fileSize = connection.contentLength.toLong()
                 val inputStream: InputStream = connection.inputStream
 
-                // تحديد المجلد واسم الملف
                 val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 if (!downloadDir.exists()) downloadDir.mkdirs()
 
@@ -232,7 +236,6 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
                 inputStream.close()
                 connection.disconnect()
 
-                // إشعار معرض الصور بالملف الجديد
                 val mediaScanIntent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
                 mediaScanIntent.data = Uri.fromFile(outputFile)
                 context.sendBroadcast(mediaScanIntent)
