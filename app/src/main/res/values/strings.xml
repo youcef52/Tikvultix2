@@ -1,3 +1,128 @@
 <resources>
     <string name="app_name">TikVultix</string>
+    
+    <!-- عام -->
+    <string name="download">تحميل</string>
+    <string name="clear">مسح</string>
+    <string name="paste">لصق</string>
+    <string name="back">رجوع</string>
+    <string name="menu">القائمة</string>
+    <string name="close">إغلاق</string>
+    <string name="cancel">إلغاء</string>
+    <string name="change">تغيير</string>
+    <string name="delete">حذف</string>
+    <string name="share">مشاركة</string>
+    <string name="play">تشغيل</string>
+    <string name="media">وسائط</string>
+    <string name="empty">فارغ</string>
+    <string name="size">الحجم</string>
+    <string name="advertisement">إعلان</string>
+    <string name="settings">الإعدادات</string>
+    <string name="language">اللغة</string>
+    <string name="privacy">الخصوصية</string>
+    
+    <!-- الشريط العلوي -->
+    <string name="download_no_watermark">تنزيل بدون علامة مائية</string>
+    <string name="no_internet">لا يوجد اتصال بالإنترنت</string>
+    <string name="discount_50">خصم 50% 💎</string>
+    
+    <!-- الشاشة الرئيسية -->
+    <string name="enter_tiktok_url">أدخل رابط تيك توك للتنزيل ⚡</string>
+    <string name="paste_link_here">إلصق الرابط هنا…</string>
+    <string name="downloading">جاري التحميل…</string>
+    <string name="no_watermark_hd">بدون علامة مائية (HD)</string>
+    <string name="with_watermark">مع علامة مائية</string>
+    <string name="audio_mp3">الصوت MP3</string>
+    <string name="album_images">صور الألبوم</string>
+    <string name="most_popular">الأكثر شعبية</string>
+    <string name="quick_download_no_watermark">تنزيل سريع بدون علامة مائية ⚡</string>
+    <string name="share_step">مشاركة</string>
+    <string name="copy_link_step">نسخ الرابط</string>
+    <string name="open_app_step">افتح التطبيق</string>
+    <string name="open_tiktok_copy_link">افتح TikTok وانسخ الرابط</string>
+    <string name="step_by_step_guide">دليل الشرح خطوة بخطوة 📘</string>
+    <string name="video_tab">فيديو</string>
+    <string name="image_tab">صورة</string>
+    <string name="music_tab">موسيقى</string>
+    
+    <!-- خطوات الفيديو -->
+    <string name="video_step1_title">افتح فيديو تيك توك</string>
+    <string name="video_step1_desc">اضغط على زر المشاركة (Share) أسفل الفيديو.</string>
+    <string name="video_step2_title">انسخ رابط الفيديو</string>
+    <string name="video_step2_desc">انقر على أيقونة نسخ الرابط.</string>
+    <string name="video_step3_title">الصق الرابط هنا</string>
+    <string name="video_step3_desc">افتح TikVultix واضغط تحميل.</string>
+    
+    <!-- خطوات الصور -->
+    <string name="image_step1_title">افتح ألبوم صور تيك توك</string>
+    <string name="image_step1_desc">اختر منشور الصور الذي تريد حفظه.</string>
+    <string name="image_step2_title">انسخ رابط المشاركة</string>
+    <string name="image_step2_desc">اضغط مشاركة ثم نسخ الرابط.</string>
+    <string name="image_step3_title">تحميل الصور دفعة واحدة</string>
+    <string name="image_step3_desc">اضغط زر تحميل للحصول على كل الصور بجودة HD.</string>
+    
+    <!-- خطوات الصوت -->
+    <string name="audio_step1_title">افتح مقطع الصوت</string>
+    <string name="audio_step1_desc">اضغط على اسطوانة الصوت في الأسفل.</string>
+    <string name="audio_step2_title">انسخ رابط الصوت</string>
+    <string name="audio_step2_desc">اضغط مشاركة ثم انسخ الرابط.</string>
+    <string name="audio_step3_title">تحميل بصيغة MP3</string>
+    <string name="audio_step3_desc">احفظ الصوت للاستماع بدون إنترنت.</string>
+    
+    <!-- السجل -->
+    <string name="download_history">سجل التحميلات</string>
+    <string name="clear_all">مسح الكل</string>
+    <string name="filter_all">الكل</string>
+    <string name="filter_video">فيديو</string>
+    <string name="filter_image">صورة</string>
+    <string name="filter_audio">موسيقى</string>
+    <string name="no_downloads">لا توجد أي تحميلات في السجل</string>
+    <string name="copy_links_to_download">قم بنسخ روابط تيك توك لتنزيل الفيديوهات والصور هنا</string>
+    <string name="watch_video">شاهد هذا الفيديو</string>
+    <string name="share_video">مشاركة الفيديو</string>
+    <string name="history_ad">إعلان سجل التحميلات</string>
+    
+    <!-- القائمة الجانبية -->
+    <string name="premium">مميز</string>
+    <string name="upgrade_premium">ترقية إلى العضوية المميزة</string>
+    <string name="unlimited_no_ads">تحميل غير محدود وبدون إعلانات!</string>
+    <string name="download_without_leaving">تنزيل دون مغادرة تيك توك</string>
+    <string name="auto_clipboard_monitor">مراقبة التخزين التلقائي للروابط</string>
+    <string name="auto_download">التحميل التلقائي</string>
+    <string name="auto_download_desc">تنزيل الفيديو فور نسخ الرابط</string>
+    <string name="customer_support">خدمة العملاء</string>
+    <string name="join_community">انضم إلى مجموعة التعليقات لدينا</string>
+    <string name="how_to_download">كيفية التحميل</string>
+    <string name="recommend_friends">أوصي به للأصدقاء</string>
+    <string name="manage_subscription">إدارة الاشتراك</string>
+    <string name="sidebar_ad">مساحة إعلانات القائمة الجانبية</string>
+    
+    <!-- بريميوم -->
+    <string name="special_offer_50">عرض خاص - خصم 50%</string>
+    <string name="upgrade_vip">ترقية إلى العضوية المميزة VIP</string>
+    <string name="enjoy_unlimited">استمتع بتحميل مفتوح وسريع جداً بدون أي إعلانات</string>
+    <string name="feature_4k">تنزيل فيديوهات بجودة Ultra HD 4K بدون علامة مائية</string>
+    <string name="feature_speed">سرعة تحميل مضاعفة 10X وتنزيل تلقائي خلفي</string>
+    <string name="feature_no_ads">إزالة جميع الإعلانات بالكامل مدى الحياة</string>
+    <string name="feature_mp3">استخراج الصوت MP3 وتنزيل ألبومات الصور دفعة واحدة</string>
+    <string name="monthly">شهري</string>
+    <string name="lifetime">مدى الحياة</string>
+    <string name="yearly">سنوي</string>
+    <string name="month">شهر</string>
+    <string name="year">سنة</string>
+    <string name="once">مرة واحدة</string>
+    <string name="most_popular_badge">الأكثر طلباً 🔥</string>
+    <string name="subscribe_now">اشترك الآن واستمتع بجميع المميزات</string>
+    <string name="buy">شراء</string>
+    
+    <!-- الخصوصية -->
+    <string name="legal_policies">Legal and Policies</string>
+    <string name="manage_information">Manage information</string>
+    <string name="terms_of_use">شروط الاستخدام</string>
+    <string name="privacy_policy">سياسة الخصوصية</string>
+    <string name="cookies_policy">Cookies policy</string>
+    <string name="data_officer">Data officer</string>
+    <string name="data_portability">Data portability</string>
+    <string name="clear_cache">Clear cache</string>
+    <string name="cache_cleared">Cache cleared successfully (14.2 MB)</string>
 </resources>
