@@ -45,6 +45,18 @@ import com.example.R
 fun PrivacyScreen(onBack: () -> Unit) {
     val context = LocalContext.current
 
+    val termsText = stringResource(R.string.terms_of_use)
+    val privacyPolicyText = stringResource(R.string.privacy_policy)
+    val cookiesPolicyText = stringResource(R.string.cookies_policy)
+    val dataOfficerText = stringResource(R.string.data_officer)
+    val dataPortabilityText = stringResource(R.string.data_portability)
+    val clearCacheText = stringResource(R.string.clear_cache)
+    val cacheClearedText = stringResource(R.string.cache_cleared)
+    val backText = stringResource(R.string.back)
+    val privacyTitle = stringResource(R.string.privacy)
+    val legalPolicies = stringResource(R.string.legal_policies)
+    val manageInfo = stringResource(R.string.manage_information)
+
     Surface(
         modifier = Modifier.fillMaxSize().testTag("privacy_screen"),
         color = Color.White
@@ -57,48 +69,60 @@ fun PrivacyScreen(onBack: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack, modifier = Modifier.testTag("privacy_back_button")) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), tint = Color(0xFF1E1E24))
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, backText, tint = Color(0xFF1E1E24))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.privacy), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E1E24))
+                Text(privacyTitle, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E1E24))
             }
 
             HorizontalDivider(color = Color(0xFFF1F3F5), thickness = 1.dp)
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                stringResource(R.string.legal_policies),
+                legalPolicies,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF888888),
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
             )
 
-            PrivacyRowSimple(stringResource(R.string.terms_of_use), Icons.Default.Gavel, { Toast.makeText(context, stringResource(R.string.terms_of_use), Toast.LENGTH_SHORT).show() }, "privacy_tile_terms")
+            PrivacyRowSimple(termsText, Icons.Default.Gavel, {
+                Toast.makeText(context, termsText, Toast.LENGTH_SHORT).show()
+            }, "privacy_tile_terms")
             HorizontalDivider(color = Color(0xFFF1F3F5), thickness = 1.dp, modifier = Modifier.padding(start = 56.dp))
 
-            PrivacyRowSimple(stringResource(R.string.privacy_policy), Icons.Default.Policy, { Toast.makeText(context, stringResource(R.string.privacy_policy), Toast.LENGTH_SHORT).show() }, "privacy_tile_privacy")
+            PrivacyRowSimple(privacyPolicyText, Icons.Default.Policy, {
+                Toast.makeText(context, privacyPolicyText, Toast.LENGTH_SHORT).show()
+            }, "privacy_tile_privacy")
             HorizontalDivider(color = Color(0xFFF1F3F5), thickness = 1.dp, modifier = Modifier.padding(start = 56.dp))
 
-            PrivacyRowSimple(stringResource(R.string.cookies_policy), Icons.Default.Cookie, { Toast.makeText(context, stringResource(R.string.cookies_policy), Toast.LENGTH_SHORT).show() }, "privacy_tile_cookies")
+            PrivacyRowSimple(cookiesPolicyText, Icons.Default.Cookie, {
+                Toast.makeText(context, cookiesPolicyText, Toast.LENGTH_SHORT).show()
+            }, "privacy_tile_cookies")
             HorizontalDivider(color = Color(0xFFF1F5F9), thickness = 1.dp, modifier = Modifier.padding(start = 56.dp))
 
-            PrivacyRowSimple(stringResource(R.string.data_officer), Icons.Default.PersonSearch, { Toast.makeText(context, "DPO: dpo@tikvultix.app", Toast.LENGTH_LONG).show() }, "privacy_tile_data_officer")
+            PrivacyRowSimple(dataOfficerText, Icons.Default.PersonSearch, {
+                Toast.makeText(context, "DPO: dpo@tikvultix.app", Toast.LENGTH_LONG).show()
+            }, "privacy_tile_data_officer")
             HorizontalDivider(color = Color(0xFFF1F3F5), thickness = 1.dp, modifier = Modifier.padding(start = 56.dp))
 
-            PrivacyRowSimple(stringResource(R.string.data_portability), Icons.Default.Storage, { Toast.makeText(context, stringResource(R.string.data_portability), Toast.LENGTH_SHORT).show() }, "privacy_tile_data_portability")
+            PrivacyRowSimple(dataPortabilityText, Icons.Default.Storage, {
+                Toast.makeText(context, dataPortabilityText, Toast.LENGTH_SHORT).show()
+            }, "privacy_tile_data_portability")
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                stringResource(R.string.manage_information),
+                manageInfo,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF888888),
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
             )
 
-            PrivacyRowSimple(stringResource(R.string.clear_cache), Icons.Default.CleaningServices, { Toast.makeText(context, stringResource(R.string.cache_cleared), Toast.LENGTH_SHORT).show() }, "privacy_tile_clear_cache")
+            PrivacyRowSimple(clearCacheText, Icons.Default.CleaningServices, {
+                Toast.makeText(context, cacheClearedText, Toast.LENGTH_SHORT).show()
+            }, "privacy_tile_clear_cache")
             HorizontalDivider(color = Color(0xFFF1F3F5), thickness = 1.dp, modifier = Modifier.padding(start = 56.dp))
         }
     }
