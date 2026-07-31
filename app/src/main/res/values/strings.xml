@@ -28,7 +28,7 @@
     
     <!-- الشاشة الرئيسية -->
     <string name="enter_tiktok_url">أدخل رابط تيك توك للتنزيل ⚡</string>
-    <string name="paste_link_here">إلصق الرابط هنا…</string>
+    <string name="paste_link_here">الصق رابط TikTok هنا</string>
     <string name="downloading">جاري التحميل…</string>
     <string name="no_watermark_hd">بدون علامة مائية (HD)</string>
     <string name="with_watermark">مع علامة مائية</string>
@@ -36,10 +36,19 @@
     <string name="album_images">صور الألبوم</string>
     <string name="most_popular">الأكثر شعبية</string>
     <string name="quick_download_no_watermark">تنزيل سريع بدون علامة مائية ⚡</string>
+    <string name="no_login_no_fees">بدون تسجيل دخول · بدون رسوم · بدون سجل</string>
     <string name="share_step">مشاركة</string>
     <string name="copy_link_step">نسخ الرابط</string>
     <string name="open_app_step">افتح التطبيق</string>
     <string name="open_tiktok_copy_link">افتح TikTok وانسخ الرابط</string>
+    <string name="show_more_guides">عرض المزيد من الشروحات</string>
+    <string name="how_to_download_title">كيفية التحميل</string>
+    <string name="dialog_step1_title">افتح تيك توك واختر الفيديو</string>
+    <string name="dialog_step1_desc">اذهب إلى TikTok واضغط على زر المشاركة (Share).</string>
+    <string name="dialog_step2_title">انسخ رابط الفيديو</string>
+    <string name="dialog_step2_desc">من القائمة المنبثقة، اختر نسخ الرابط (Copy Link).</string>
+    <string name="dialog_step3_title">ارجع للتطبيق والصق الرابط</string>
+    <string name="dialog_step3_desc">افتح TikVultix واضغط تحميل.</string>
     <string name="step_by_step_guide">دليل الشرح خطوة بخطوة 📘</string>
     <string name="video_tab">فيديو</string>
     <string name="image_tab">صورة</string>
@@ -124,5 +133,20 @@
     <string name="data_officer">Data officer</string>
     <string name="data_portability">Data portability</string>
     <string name="clear_cache">Clear cache</string>
-    <string name="cache_cleared">Cache cleared successfully (14.2 MB)</string>
+    <string name="cache_cleared">تم مسح الذاكرة المؤقتة (14.2 MB)</string>
+
+    <!-- نصوص إضافية -->
+    <string name="home">الرئيسية</string>
+    <string name="history">السجل</string>
+    <string name="share_app_text">حمل تطبيق TikVultix لتنزيل فيديوهات تيك توك بدون علامة مائية بسرعة وبجودة عالية!</string>
+    <string name="download_started">جاري بدء التحميل…</string>
+    <string name="premium_success">تهانينا! تم تفعيل العضوية المميزة VIP 👑</string>
+    <string name="support_title">خدمة العملاء 🎧</string>
+    <string name="support_message">فريق خدمة العملاء متواجد على مدار 24 ساعة.\n\nالبريد: support@tikvultix.app\nتليجرام: @TikVultixSupport</string>
+    <string name="ok">حسناً</string>
+    <string name="community_title">مجموعة التعليقات 💬</string>
+    <string name="community_message">انضم إلى مجتمع TikVultix لمشاركة أحدث الفيديوهات.</string>
+    <string name="join_now">انضمام الآن</string>
+    <string name="how_to_download_message">1. افتح TikTok واضغط مشاركة.\n2. اختر نسخ الرابط.\n3. افتح TikVultix واضغط تحميل.</string>
+    <string name="got_it">فهمت ذلك</string>
 </resources>
