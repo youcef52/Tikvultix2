@@ -4,7 +4,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,11 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Download
@@ -28,10 +27,10 @@ import androidx.compose.material.icons.filled.Hd
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Launch
 import androidx.compose.material.icons.filled.LibraryMusic
-import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -42,11 +41,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,14 +56,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.R
 import com.example.data.ParsedTikTokMedia
-import com.example.ui.components.AdMobBannerPlaceholder
 import com.example.ui.theme.CrimsonPrimary
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
@@ -87,7 +81,7 @@ fun HomeScreen(
     onClearInput: () -> Unit
 ) {
     val context = LocalContext.current
-    var selectedTutorialTab by remember { mutableStateOf(0) }
+    var showHowToDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier
@@ -113,15 +107,6 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .padding(12.dp)
                 ) {
-                    Text(
-                        text = stringResource(R.string.enter_tiktok_url),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -131,7 +116,7 @@ fun HomeScreen(
                             onValueChange = onUrlInputChange,
                             placeholder = {
                                 Text(
-                                    text = stringResource(R.string.paste_link_here),
+                                    text = "الصق رابط TikTok هنا",
                                     fontSize = 11.sp,
                                     color = Color.Gray
                                 )
@@ -145,7 +130,7 @@ fun HomeScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Clear,
-                                            contentDescription = stringResource(R.string.clear),
+                                            contentDescription = "Clear",
                                             tint = Color.Gray,
                                             modifier = Modifier.size(16.dp)
                                         )
@@ -167,7 +152,7 @@ fun HomeScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.ContentPaste,
-                                            contentDescription = stringResource(R.string.paste),
+                                            contentDescription = "Paste",
                                             tint = CrimsonPrimary,
                                             modifier = Modifier.size(16.dp)
                                         )
@@ -209,13 +194,13 @@ fun HomeScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
                                         imageVector = Icons.Default.Download,
-                                        contentDescription = stringResource(R.string.download),
+                                        contentDescription = "Download",
                                         tint = Color.White,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(3.dp))
                                     Text(
-                                        text = stringResource(R.string.download),
+                                        text = "تحميل",
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White
@@ -264,7 +249,7 @@ fun HomeScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = stringResource(R.string.media),
+                                    contentDescription = "Media",
                                     tint = Color.White,
                                     modifier = Modifier.size(28.dp)
                                 )
@@ -288,7 +273,7 @@ fun HomeScreen(
                                     color = TextSecondary
                                 )
                                 Text(
-                                    text = "${stringResource(R.string.size)}: ${extractionResult.fileSize}",
+                                    text = "الحجم: ${extractionResult.fileSize}",
                                     fontSize = 10.sp,
                                     color = CrimsonPrimary,
                                     fontWeight = FontWeight.Bold
@@ -304,7 +289,7 @@ fun HomeScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Text(
-                                        text = stringResource(R.string.downloading),
+                                        text = "جاري التحميل...",
                                         fontSize = 10.sp,
                                         color = TextPrimary,
                                         fontWeight = FontWeight.Bold
@@ -333,9 +318,9 @@ fun HomeScreen(
 
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             DownloadOptionButton(
-                                text = stringResource(R.string.no_watermark_hd),
+                                text = "بدون علامة مائية (HD)",
                                 icon = Icons.Default.Hd,
-                                badge = stringResource(R.string.most_popular),
+                                badge = "الأكثر شعبية",
                                 containerColor = CrimsonPrimary,
                                 contentColor = Color.White,
                                 tag = "btn_download_no_watermark",
@@ -343,7 +328,7 @@ fun HomeScreen(
                             )
 
                             DownloadOptionButton(
-                                text = stringResource(R.string.with_watermark),
+                                text = "مع علامة مائية",
                                 icon = Icons.Default.Videocam,
                                 containerColor = Color(0xFFF1F5F9),
                                 contentColor = TextPrimary,
@@ -352,7 +337,7 @@ fun HomeScreen(
                             )
 
                             DownloadOptionButton(
-                                text = stringResource(R.string.audio_mp3),
+                                text = "الصوت MP3",
                                 icon = Icons.Default.LibraryMusic,
                                 containerColor = Color(0xFFE0F7FA),
                                 contentColor = Color(0xFF00838F),
@@ -362,7 +347,7 @@ fun HomeScreen(
 
                             if (extractionResult.imageCovers.isNotEmpty()) {
                                 DownloadOptionButton(
-                                    text = stringResource(R.string.album_images),
+                                    text = "صور الألبوم",
                                     icon = Icons.Default.Image,
                                     containerColor = Color(0xFFF3E5F5),
                                     contentColor = Color(0xFF7B1FA2),
@@ -393,38 +378,31 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = stringResource(R.string.quick_download_no_watermark),
+                        text = "تنزيل سريع بدون علامة مائية ⚡",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
 
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "بدون تسجيل دخول · بدون رسوم · بدون سجل",
+                        fontSize = 12.sp,
+                        color = TextSecondary,
+                        textAlign = TextAlign.Center
+                    )
+
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        GuideStepCircle(
-                            icon = Icons.Default.Share,
-                            label = stringResource(R.string.share_step),
-                            stepNum = "1"
-                        )
-                        Text(text = "→", color = CrimsonPrimary, fontWeight = FontWeight.Bold)
-                        GuideStepCircle(
-                            icon = Icons.Default.ContentCopy,
-                            label = stringResource(R.string.copy_link_step),
-                            stepNum = "2"
-                        )
-                        Text(text = "→", color = CrimsonPrimary, fontWeight = FontWeight.Bold)
-                        GuideStepCircle(
-                            icon = Icons.Default.Launch,
-                            label = stringResource(R.string.open_app_step),
-                            stepNum = "3"
-                        )
+                        GuideStepCircle(Icons.Default.Share, "مشاركة", "1")
+                        GuideStepCircle(Icons.Default.ContentCopy, "نسخ الرابط", "2")
+                        GuideStepCircle(Icons.Default.Launch, "افتح التطبيق", "3")
                     }
                 }
             }
@@ -449,7 +427,7 @@ fun HomeScreen(
                     Text(text = "🎵", fontSize = 16.sp)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = stringResource(R.string.open_tiktok_copy_link),
+                        text = "افتح TikTok وانسخ الرابط",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -458,234 +436,134 @@ fun HomeScreen(
             }
         }
 
-        // 5. TUTORIAL TABS
+        // 5. رابط "عرض المزيد من الشروحات"
         item {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .padding(12.dp)
-                    .testTag("tutorial_tabs_section")
+            TextButton(
+                onClick = { showHowToDialog = true },
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = stringResource(R.string.step_by_step_guide),
-                    fontSize = 13.sp,
+                    text = "عرض المزيد من الشروحات",
+                    color = CrimsonPrimary,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                TabRow(
-                    selectedTabIndex = selectedTutorialTab,
-                    containerColor = Color(0xFFF8F9FA),
-                    contentColor = CrimsonPrimary,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.SecondaryIndicator(
-                            Modifier.tabIndicatorOffset(tabPositions[selectedTutorialTab]),
-                            color = CrimsonPrimary
-                        )
-                    },
-                    modifier = Modifier.clip(RoundedCornerShape(10.dp))
-                ) {
-                    Tab(
-                        selected = selectedTutorialTab == 0,
-                        onClick = { selectedTutorialTab = 0 },
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Videocam, null, modifier = Modifier.size(14.dp))
-                                Spacer(modifier = Modifier.width(3.dp))
-                                Text(stringResource(R.string.video_tab), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    )
-                    Tab(
-                        selected = selectedTutorialTab == 1,
-                        onClick = { selectedTutorialTab = 1 },
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Image, null, modifier = Modifier.size(14.dp))
-                                Spacer(modifier = Modifier.width(3.dp))
-                                Text(stringResource(R.string.image_tab), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    )
-                    Tab(
-                        selected = selectedTutorialTab == 2,
-                        onClick = { selectedTutorialTab = 2 },
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.MusicNote, null, modifier = Modifier.size(14.dp))
-                                Spacer(modifier = Modifier.width(3.dp))
-                                Text(stringResource(R.string.music_tab), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                when (selectedTutorialTab) {
-                    0 -> TutorialStepCard(
-                        step1Title = stringResource(R.string.video_step1_title),
-                        step1Desc = stringResource(R.string.video_step1_desc),
-                        step2Title = stringResource(R.string.video_step2_title),
-                        step2Desc = stringResource(R.string.video_step2_desc),
-                        step3Title = stringResource(R.string.video_step3_title),
-                        step3Desc = stringResource(R.string.video_step3_desc)
-                    )
-                    1 -> TutorialStepCard(
-                        step1Title = stringResource(R.string.image_step1_title),
-                        step1Desc = stringResource(R.string.image_step1_desc),
-                        step2Title = stringResource(R.string.image_step2_title),
-                        step2Desc = stringResource(R.string.image_step2_desc),
-                        step3Title = stringResource(R.string.image_step3_title),
-                        step3Desc = stringResource(R.string.image_step3_desc)
-                    )
-                    2 -> TutorialStepCard(
-                        step1Title = stringResource(R.string.audio_step1_title),
-                        step1Desc = stringResource(R.string.audio_step1_desc),
-                        step2Title = stringResource(R.string.audio_step2_title),
-                        step2Desc = stringResource(R.string.audio_step2_desc),
-                        step3Title = stringResource(R.string.audio_step3_title),
-                        step3Desc = stringResource(R.string.audio_step3_desc)
-                    )
-                }
             }
-        }
-
-        // 6. AD
-        item {
-            AdMobBannerPlaceholder(adTitle = stringResource(R.string.advertisement))
         }
 
         item { Spacer(modifier = Modifier.height(16.dp)) }
     }
+
+    if (showHowToDialog) {
+        HowToDownloadDialog(
+            onDismiss = { showHowToDialog = false },
+            onOpenTikTok = {
+                showHowToDialog = false
+                onOpenTikTokApp()
+            }
+        )
+    }
 }
 
 @Composable
-private fun GuideStepCircle(
-    icon: ImageVector,
-    label: String,
-    stepNum: String
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(64.dp)
+private fun HowToDownloadDialog(onDismiss: () -> Unit, onOpenTikTok: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color.White,
+        shape = RoundedCornerShape(20.dp),
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("كيفية التحميل", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
+                    Icon(Icons.Default.Close, "إغلاق", tint = Color.Gray)
+                }
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                HowToStep(Icons.Default.Share, "1", "افتح تيك توك واختر الفيديو", "اذهب إلى TikTok واضغط على زر المشاركة (Share) على الفيديو المراد تحميله.")
+                HowToStep(Icons.Default.ContentCopy, "2", "انسخ رابط الفيديو", "من القائمة المنبثقة، اختر نسخ الرابط (Copy Link).")
+                HowToStep(Icons.Default.Launch, "3", "ارجع للتطبيق والصق الرابط", "افتح TikVultix وسيتم لصق الرابط تلقائياً. اضغط تحميل للتنزيل بدون علامة مائية.")
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onOpenTikTok,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+            ) {
+                Text("🎵  ", fontSize = 16.sp)
+                Text("افتح TikTok وانسخ الرابط", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
+                Text("إلغاء", color = Color.Gray, fontSize = 13.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+            }
+        }
+    )
+}
+
+@Composable
+private fun HowToStep(icon: ImageVector, stepNumber: String, title: String, description: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFFF8F9FA)).padding(12.dp),
+        verticalAlignment = Alignment.Top
     ) {
+        Box(modifier = Modifier.size(36.dp).clip(CircleShape).background(CrimsonPrimary), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = Color.White, modifier = Modifier.size(18.dp))
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column {
+            Text("$stepNumber. $title", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(description, fontSize = 11.sp, color = TextSecondary)
+        }
+    }
+}
+
+@Composable
+private fun GuideStepCircle(icon: ImageVector, label: String, stepNum: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(64.dp)) {
         Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(Color(0xFFFFF1F2))
-                .border(1.5.dp, CrimsonPrimary, CircleShape),
+            modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFFFFF1F2)).border(1.5.dp, CrimsonPrimary, CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = CrimsonPrimary,
-                modifier = Modifier.size(18.dp)
-            )
+            Icon(icon, label, tint = CrimsonPrimary, modifier = Modifier.size(18.dp))
         }
         Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = label,
-            fontSize = 9.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextPrimary,
-            maxLines = 1
-        )
+        Text(label, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = TextPrimary, maxLines = 1)
     }
 }
 
 @Composable
 private fun DownloadOptionButton(
-    text: String,
-    icon: ImageVector,
-    badge: String? = null,
-    containerColor: Color,
-    contentColor: Color,
-    tag: String,
-    onClick: () -> Unit
+    text: String, icon: ImageVector, badge: String? = null,
+    containerColor: Color, contentColor: Color, tag: String, onClick: () -> Unit
 ) {
     Button(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(42.dp)
-            .testTag(tag),
+        onClick = onClick, modifier = Modifier.fillMaxWidth().height(42.dp).testTag(tag),
         shape = RoundedCornerShape(10.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        )
+        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColor)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = text, modifier = Modifier.size(16.dp))
+                Icon(icon, text, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(text = text, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(text, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
             if (badge != null) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(Color.White.copy(alpha = 0.3f))
-                        .padding(horizontal = 5.dp, vertical = 1.dp)
-                ) {
-                    Text(text = badge, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = contentColor)
+                Box(modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(Color.White.copy(alpha = 0.3f)).padding(horizontal = 5.dp, vertical = 1.dp)) {
+                    Text(badge, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = contentColor)
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun TutorialStepCard(
-    step1Title: String,
-    step1Desc: String,
-    step2Title: String,
-    step2Desc: String,
-    step3Title: String,
-    step3Desc: String
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        StepRowItem(number = "1", title = step1Title, desc = step1Desc)
-        StepRowItem(number = "2", title = step2Title, desc = step2Desc)
-        StepRowItem(number = "3", title = step3Title, desc = step3Desc)
-    }
-}
-
-@Composable
-private fun StepRowItem(number: String, title: String, desc: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color(0xFFF8F9FA))
-            .padding(10.dp),
-        verticalAlignment = Alignment.Top
-    ) {
-        Box(
-            modifier = Modifier
-                .size(24.dp)
-                .clip(CircleShape)
-                .background(CrimsonPrimary),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = number, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
-        }
-        Spacer(modifier = Modifier.width(8.dp))
-        Column {
-            Text(text = title, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-            Spacer(modifier = Modifier.height(1.dp))
-            Text(text = desc, fontSize = 10.sp, color = TextSecondary)
         }
     }
 }
