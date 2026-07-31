@@ -14,13 +14,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
@@ -35,7 +30,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
@@ -47,8 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -68,8 +60,6 @@ import com.example.ui.screens.PrivacyScreen
 import com.example.ui.screens.SettingsScreen
 import com.example.ui.theme.CrimsonPrimary
 import com.example.ui.theme.SnapTokTheme
-import com.example.ui.theme.TextPrimary
-import com.example.ui.theme.TextSecondary
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -115,7 +105,6 @@ fun MainAppContent(viewModel: DownloaderViewModel) {
     val isOfflineSimulated by viewModel.isOfflineSimulated.collectAsStateWithLifecycle()
     val language by viewModel.language.collectAsStateWithLifecycle()
 
-    // Dialog Visibility States
     var showPremiumDialog by remember { mutableStateOf(false) }
     var showSupportDialog by remember { mutableStateOf(false) }
     var showCommunityDialog by remember { mutableStateOf(false) }
@@ -175,7 +164,6 @@ fun MainAppContent(viewModel: DownloaderViewModel) {
                         tonalElevation = 8.dp,
                         modifier = Modifier
                             .shadow(8.dp)
-                            .windowInsetsPadding(WindowInsets.navigationBars)
                             .testTag("bottom_navigation_bar")
                     ) {
                         NavigationBarItem(
@@ -284,7 +272,7 @@ fun MainAppContent(viewModel: DownloaderViewModel) {
         }
     }
 
-    // Dialogs & Sheets
+    // Dialogs
     if (showPremiumDialog) {
         PremiumUpgradeDialog(
             onDismiss = { showPremiumDialog = false },
