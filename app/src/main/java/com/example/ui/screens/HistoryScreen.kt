@@ -77,6 +77,23 @@ fun HistoryScreen(
         else -> downloads
     }
 
+    // ✅ جميع النصوص تستخرج هنا خارج أي callback
+    val downloadHistoryText = stringResource(R.string.download_history)
+    val clearAllText = stringResource(R.string.clear_all)
+    val filterAllText = stringResource(R.string.filter_all)
+    val filterVideoText = stringResource(R.string.filter_video)
+    val filterImageText = stringResource(R.string.filter_image)
+    val filterAudioText = stringResource(R.string.filter_audio)
+    val noDownloadsText = stringResource(R.string.no_downloads)
+    val copyLinksText = stringResource(R.string.copy_links_to_download)
+    val watchVideoText = stringResource(R.string.watch_video)
+    val shareVideoText = stringResource(R.string.share_video)
+    val historyAdText = stringResource(R.string.history_ad)
+    val emptyText = stringResource(R.string.empty)
+    val playText = stringResource(R.string.play)
+    val shareText = stringResource(R.string.share)
+    val deleteText = stringResource(R.string.delete)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -91,7 +108,7 @@ fun HistoryScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "${stringResource(R.string.download_history)} (${filteredList.size}) 📁",
+                text = "$downloadHistoryText (${filteredList.size}) 📁",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = TextPrimary
@@ -104,13 +121,13 @@ fun HistoryScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.DeleteSweep,
-                        contentDescription = stringResource(R.string.clear_all),
+                        contentDescription = clearAllText,
                         tint = CrimsonPrimary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = stringResource(R.string.clear_all),
+                        text = clearAllText,
                         color = CrimsonPrimary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -125,10 +142,10 @@ fun HistoryScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            FilterChipItem(label = stringResource(R.string.filter_all), isSelected = selectedFilter == "all", tag = "filter_chip_all", onClick = { selectedFilter = "all" })
-            FilterChipItem(label = "${stringResource(R.string.filter_video)} 📹", isSelected = selectedFilter == "video", tag = "filter_chip_video", onClick = { selectedFilter = "video" })
-            FilterChipItem(label = "${stringResource(R.string.filter_image)} 🖼️", isSelected = selectedFilter == "image", tag = "filter_chip_image", onClick = { selectedFilter = "image" })
-            FilterChipItem(label = "${stringResource(R.string.filter_audio)} 🎵", isSelected = selectedFilter == "audio", tag = "filter_chip_audio", onClick = { selectedFilter = "audio" })
+            FilterChipItem(label = filterAllText, isSelected = selectedFilter == "all", tag = "filter_chip_all", onClick = { selectedFilter = "all" })
+            FilterChipItem(label = "$filterVideoText 📹", isSelected = selectedFilter == "video", tag = "filter_chip_video", onClick = { selectedFilter = "video" })
+            FilterChipItem(label = "$filterImageText 🖼️", isSelected = selectedFilter == "image", tag = "filter_chip_image", onClick = { selectedFilter = "image" })
+            FilterChipItem(label = "$filterAudioText 🎵", isSelected = selectedFilter == "audio", tag = "filter_chip_audio", onClick = { selectedFilter = "audio" })
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -151,21 +168,21 @@ fun HistoryScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.FolderOpen,
-                            contentDescription = stringResource(R.string.empty),
+                            contentDescription = emptyText,
                             tint = CrimsonPrimary,
                             modifier = Modifier.size(44.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(14.dp))
                     Text(
-                        text = stringResource(R.string.no_downloads),
+                        text = noDownloadsText,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = stringResource(R.string.copy_links_to_download),
+                        text = copyLinksText,
                         fontSize = 12.sp,
                         color = TextSecondary
                     )
@@ -181,17 +198,22 @@ fun HistoryScreen(
                 items(filteredList, key = { it.id }) { item ->
                     DownloadHistoryItemCard(
                         item = item,
+                        watchVideoText = watchVideoText,
+                        shareVideoText = shareVideoText,
+                        shareText = shareText,
+                        deleteText = deleteText,
+                        playText = playText,
                         onDelete = { onDeleteDownload(item) },
-                        onShare = {
+                        onShare = { url, title ->
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, "${stringResource(R.string.watch_video)}: ${item.originalUrl}")
+                                putExtra(Intent.EXTRA_TEXT, "$title: $url")
                             }
-                            context.startActivity(Intent.createChooser(shareIntent, stringResource(R.string.share_video)))
+                            context.startActivity(Intent.createChooser(shareIntent, shareVideoText))
                         },
-                        onPlay = {
+                        onPlay = { url ->
                             val playIntent = Intent(Intent.ACTION_VIEW).apply {
-                                setDataAndType(Uri.parse(item.noWatermarkUrl), "video/*")
+                                setDataAndType(Uri.parse(url), "video/*")
                             }
                             runCatching { context.startActivity(playIntent) }
                         }
@@ -202,7 +224,7 @@ fun HistoryScreen(
         }
 
         AdMobBannerPlaceholder(
-            adTitle = stringResource(R.string.history_ad),
+            adTitle = historyAdText,
             modifier = Modifier.padding(bottom = 12.dp)
         )
     }
@@ -239,9 +261,14 @@ private fun FilterChipItem(
 @Composable
 private fun DownloadHistoryItemCard(
     item: DownloadItem,
+    watchVideoText: String,
+    shareVideoText: String,
+    shareText: String,
+    deleteText: String,
+    playText: String,
     onDelete: () -> Unit,
-    onShare: () -> Unit,
-    onPlay: () -> Unit
+    onShare: (String, String) -> Unit,
+    onPlay: (String) -> Unit
 ) {
     val dateFormat = SimpleDateFormat("yyyy/MM/dd - hh:mm a", Locale.getDefault())
     val formattedDate = dateFormat.format(Date(item.downloadTimestamp))
@@ -265,7 +292,7 @@ private fun DownloadHistoryItemCard(
                     .size(60.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color(0xFF1E1E24))
-                    .clickable { onPlay() },
+                    .clickable { onPlay(item.noWatermarkUrl) },
                 contentAlignment = Alignment.Center
             ) {
                 val mediaIcon = when (item.mediaType) {
@@ -275,7 +302,7 @@ private fun DownloadHistoryItemCard(
                 }
                 Icon(
                     imageVector = mediaIcon,
-                    contentDescription = stringResource(R.string.play),
+                    contentDescription = playText,
                     tint = Color.White,
                     modifier = Modifier.size(28.dp)
                 )
@@ -303,11 +330,11 @@ private fun DownloadHistoryItemCard(
             }
 
             Row {
-                IconButton(onClick = onShare, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Default.Share, stringResource(R.string.share), tint = CrimsonPrimary, modifier = Modifier.size(18.dp))
+                IconButton(onClick = { onShare(item.originalUrl, watchVideoText) }, modifier = Modifier.size(32.dp)) {
+                    Icon(Icons.Default.Share, shareText, tint = CrimsonPrimary, modifier = Modifier.size(18.dp))
                 }
                 IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Default.Delete, stringResource(R.string.delete), tint = Color.Gray, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.Delete, deleteText, tint = Color.Gray, modifier = Modifier.size(18.dp))
                 }
             }
         }
