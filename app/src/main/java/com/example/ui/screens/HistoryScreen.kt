@@ -22,13 +22,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteSweep
-import androidx.compose.material.icons.filled.DownloadDone
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -48,10 +46,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.data.DownloadItem
 import com.example.ui.components.AdMobBannerPlaceholder
 import com.example.ui.theme.CrimsonPrimary
@@ -68,7 +68,7 @@ fun HistoryScreen(
     onClearAll: () -> Unit
 ) {
     val context = LocalContext.current
-    var selectedFilter by remember { mutableStateOf("all") } // "all", "video", "image", "audio"
+    var selectedFilter by remember { mutableStateOf("all") }
 
     val filteredList = when (selectedFilter) {
         "video" -> downloads.filter { it.mediaType == "video" }
@@ -85,14 +85,13 @@ fun HistoryScreen(
     ) {
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Title Row & Clear All
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "سجل التحميلات (${filteredList.size}) 📁",
+                text = "${stringResource(R.string.download_history)} (${filteredList.size}) 📁",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = TextPrimary
@@ -105,13 +104,13 @@ fun HistoryScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.DeleteSweep,
-                        contentDescription = "Clear All",
+                        contentDescription = stringResource(R.string.clear_all),
                         tint = CrimsonPrimary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "مسح الكل",
+                        text = stringResource(R.string.clear_all),
                         color = CrimsonPrimary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -122,44 +121,19 @@ fun HistoryScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Filter Chips Row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            FilterChipItem(
-                label = "الكل",
-                isSelected = selectedFilter == "all",
-                tag = "filter_chip_all",
-                onClick = { selectedFilter = "all" }
-            )
-
-            FilterChipItem(
-                label = "فيديو 📹",
-                isSelected = selectedFilter == "video",
-                tag = "filter_chip_video",
-                onClick = { selectedFilter = "video" }
-            )
-
-            FilterChipItem(
-                label = "صورة 🖼️",
-                isSelected = selectedFilter == "image",
-                tag = "filter_chip_image",
-                onClick = { selectedFilter = "image" }
-            )
-
-            FilterChipItem(
-                label = "موسيقى 🎵",
-                isSelected = selectedFilter == "audio",
-                tag = "filter_chip_audio",
-                onClick = { selectedFilter = "audio" }
-            )
+            FilterChipItem(label = stringResource(R.string.filter_all), isSelected = selectedFilter == "all", tag = "filter_chip_all", onClick = { selectedFilter = "all" })
+            FilterChipItem(label = "${stringResource(R.string.filter_video)} 📹", isSelected = selectedFilter == "video", tag = "filter_chip_video", onClick = { selectedFilter = "video" })
+            FilterChipItem(label = "${stringResource(R.string.filter_image)} 🖼️", isSelected = selectedFilter == "image", tag = "filter_chip_image", onClick = { selectedFilter = "image" })
+            FilterChipItem(label = "${stringResource(R.string.filter_audio)} 🎵", isSelected = selectedFilter == "audio", tag = "filter_chip_audio", onClick = { selectedFilter = "audio" })
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
         if (filteredList.isEmpty()) {
-            // Empty State
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -167,9 +141,7 @@ fun HistoryScreen(
                     .testTag("empty_history_container"),
                 contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(
                         modifier = Modifier
                             .size(90.dp)
@@ -179,21 +151,21 @@ fun HistoryScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.FolderOpen,
-                            contentDescription = "Empty",
+                            contentDescription = stringResource(R.string.empty),
                             tint = CrimsonPrimary,
                             modifier = Modifier.size(44.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(14.dp))
                     Text(
-                        text = "لا توجد أي تحميلات في السجل",
+                        text = stringResource(R.string.no_downloads),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "قم بنسخ روابط تيك توك لتنزيل الفيديوهات والصور هنا",
+                        text = stringResource(R.string.copy_links_to_download),
                         fontSize = 12.sp,
                         color = TextSecondary
                     )
@@ -213,9 +185,9 @@ fun HistoryScreen(
                         onShare = {
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, "شاهد هذا الفيديو المميز من تيك توك: ${item.originalUrl}")
+                                putExtra(Intent.EXTRA_TEXT, "${stringResource(R.string.watch_video)}: ${item.originalUrl}")
                             }
-                            context.startActivity(Intent.createChooser(shareIntent, "مشاركة الفيديو"))
+                            context.startActivity(Intent.createChooser(shareIntent, stringResource(R.string.share_video)))
                         },
                         onPlay = {
                             val playIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -229,9 +201,8 @@ fun HistoryScreen(
             }
         }
 
-        // Bottom Ad Banner Placeholder
         AdMobBannerPlaceholder(
-            adTitle = "إعلان سجل التحميلات",
+            adTitle = stringResource(R.string.history_ad),
             modifier = Modifier.padding(bottom = 12.dp)
         )
     }
@@ -289,7 +260,6 @@ private fun DownloadHistoryItemCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Thumbnail / Icon Badge
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -305,7 +275,7 @@ private fun DownloadHistoryItemCard(
                 }
                 Icon(
                     imageVector = mediaIcon,
-                    contentDescription = "Play",
+                    contentDescription = stringResource(R.string.play),
                     tint = Color.White,
                     modifier = Modifier.size(28.dp)
                 )
@@ -313,10 +283,7 @@ private fun DownloadHistoryItemCard(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Details
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.title,
                     fontSize = 13.sp,
@@ -325,57 +292,22 @@ private fun DownloadHistoryItemCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-
                 Spacer(modifier = Modifier.height(2.dp))
-
-                Text(
-                    text = item.authorName,
-                    fontSize = 11.sp,
-                    color = TextSecondary
-                )
-
+                Text(text = item.authorName, fontSize = 11.sp, color = TextSecondary)
                 Spacer(modifier = Modifier.height(4.dp))
-
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = item.fileSize,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = CrimsonPrimary
-                    )
+                    Text(text = item.fileSize, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = CrimsonPrimary)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = formattedDate,
-                        fontSize = 9.sp,
-                        color = Color.Gray
-                    )
+                    Text(text = formattedDate, fontSize = 9.sp, color = Color.Gray)
                 }
             }
 
-            // Action Buttons
             Row {
-                IconButton(
-                    onClick = onShare,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Share,
-                        contentDescription = "Share",
-                        tint = CrimsonPrimary,
-                        modifier = Modifier.size(18.dp)
-                    )
+                IconButton(onClick = onShare, modifier = Modifier.size(32.dp)) {
+                    Icon(Icons.Default.Share, stringResource(R.string.share), tint = CrimsonPrimary, modifier = Modifier.size(18.dp))
                 }
-
-                IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(18.dp)
-                    )
+                IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
+                    Icon(Icons.Default.Delete, stringResource(R.string.delete), tint = Color.Gray, modifier = Modifier.size(18.dp))
                 }
             }
         }
