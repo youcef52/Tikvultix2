@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
@@ -46,10 +45,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.DownloaderViewModel
 import com.example.ui.components.AdMobBannerPlaceholder
@@ -133,9 +132,9 @@ fun MainAppContent(viewModel: DownloaderViewModel) {
                 onRecommendFriends = {
                     val shareIntent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, "حمل تطبيق TikVultix لتنزيل فيديوهات تيك توك بدون علامة مائية بسرعة وبجودة عالية!")
+                        putExtra(Intent.EXTRA_TEXT, context.getString(R.string.share_app_text))
                     }
-                    context.startActivity(Intent.createChooser(shareIntent, "أوصي به للأصدقاء"))
+                    context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.recommend_friends)))
                 },
                 onManageSubscriptions = { showPremiumDialog = true },
                 onOpenSettings = { viewModel.navigateToScreen("settings") },
@@ -157,7 +156,7 @@ fun MainAppContent(viewModel: DownloaderViewModel) {
             bottomBar = {
                 if (currentScreen == "main") {
                     Column {
-                        AdMobBannerPlaceholder(adTitle = "إعلان")
+                        AdMobBannerPlaceholder(adTitle = context.getString(R.string.advertisement))
                         NavigationBar(
                             containerColor = Color.White,
                             tonalElevation = 8.dp,
@@ -166,16 +165,16 @@ fun MainAppContent(viewModel: DownloaderViewModel) {
                             NavigationBarItem(
                                 selected = currentTab == 0,
                                 onClick = { viewModel.selectTab(0) },
-                                icon = { Icon(if (currentTab == 0) Icons.Filled.Home else Icons.Outlined.Home, "Home") },
-                                label = { Text("الرئيسية", fontWeight = FontWeight.Bold) },
+                                icon = { Icon(if (currentTab == 0) Icons.Filled.Home else Icons.Outlined.Home, context.getString(R.string.home)) },
+                                label = { Text(context.getString(R.string.home), fontWeight = FontWeight.Bold) },
                                 colors = NavigationBarItemDefaults.colors(selectedIconColor = CrimsonPrimary, selectedTextColor = CrimsonPrimary, indicatorColor = Color(0xFFFFF1F2), unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray),
                                 modifier = Modifier.testTag("nav_item_home")
                             )
                             NavigationBarItem(
                                 selected = currentTab == 1,
                                 onClick = { viewModel.selectTab(1) },
-                                icon = { Icon(if (currentTab == 1) Icons.Filled.History else Icons.Outlined.History, "History") },
-                                label = { Text("السجل", fontWeight = FontWeight.Bold) },
+                                icon = { Icon(if (currentTab == 1) Icons.Filled.History else Icons.Outlined.History, context.getString(R.string.history)) },
+                                label = { Text(context.getString(R.string.history), fontWeight = FontWeight.Bold) },
                                 colors = NavigationBarItemDefaults.colors(selectedIconColor = CrimsonPrimary, selectedTextColor = CrimsonPrimary, indicatorColor = Color(0xFFFFF1F2), unselectedIconColor = Color.Gray, unselectedTextColor = Color.Gray),
                                 modifier = Modifier.testTag("nav_item_history")
                             )
@@ -192,7 +191,7 @@ fun MainAppContent(viewModel: DownloaderViewModel) {
                         else -> {
                             AnimatedContent(targetState = currentTab, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "TabTransition") { targetTab ->
                                 when (targetTab) {
-                                    0 -> HomeScreen(urlInput, { viewModel.onUrlInputChanged(it) }, { viewModel.extractVideoInfo() }, { openTikTokApp() }, isExtracting, extractionResult, downloadProgress, isDownloading, errorMessage, { type, opt -> viewModel.startDownload(type, opt); Toast.makeText(context, "جاري بدء التحميل...", Toast.LENGTH_SHORT).show() }, { viewModel.clearInput() })
+                                    0 -> HomeScreen(urlInput, { viewModel.onUrlInputChanged(it) }, { viewModel.extractVideoInfo() }, { openTikTokApp() }, isExtracting, extractionResult, downloadProgress, isDownloading, errorMessage, { type, opt -> viewModel.startDownload(type, opt); Toast.makeText(context, context.getString(R.string.download_started), Toast.LENGTH_SHORT).show() }, { viewModel.clearInput() })
                                     1 -> HistoryScreen(downloads, { viewModel.deleteDownload(it) }, { viewModel.clearAllDownloads() })
                                 }
                             }
@@ -204,15 +203,15 @@ fun MainAppContent(viewModel: DownloaderViewModel) {
     }
 
     if (showPremiumDialog) {
-        PremiumUpgradeDialog(onDismiss = { showPremiumDialog = false }, onPurchaseSuccess = { viewModel.setPremium(true); Toast.makeText(context, "تهانينا! تم تفعيل العضوية المميزة VIP 👑", Toast.LENGTH_LONG).show() })
+        PremiumUpgradeDialog(onDismiss = { showPremiumDialog = false }, onPurchaseSuccess = { viewModel.setPremium(true); Toast.makeText(context, context.getString(R.string.premium_success), Toast.LENGTH_LONG).show() })
     }
     if (showSupportDialog) {
-        AlertDialog(onDismissRequest = { showSupportDialog = false }, title = { Text("خدمة العملاء 🎧", fontWeight = FontWeight.Bold) }, text = { Text("فريق خدمة العملاء متواجد على مدار 24 ساعة.\n\nالبريد: support@tikvultix.app\nتليجرام: @TikVultixSupport") }, confirmButton = { TextButton(onClick = { showSupportDialog = false }) { Text("حسناً", color = CrimsonPrimary, fontWeight = FontWeight.Bold) } })
+        AlertDialog(onDismissRequest = { showSupportDialog = false }, title = { Text(context.getString(R.string.support_title), fontWeight = FontWeight.Bold) }, text = { Text(context.getString(R.string.support_message)) }, confirmButton = { TextButton(onClick = { showSupportDialog = false }) { Text(context.getString(R.string.ok), color = CrimsonPrimary, fontWeight = FontWeight.Bold) } })
     }
     if (showCommunityDialog) {
-        AlertDialog(onDismissRequest = { showCommunityDialog = false }, title = { Text("مجموعة التعليقات 💬", fontWeight = FontWeight.Bold) }, text = { Text("انضم إلى مجتمع TikVultix لمشاركة أحدث الفيديوهات.") }, confirmButton = { TextButton(onClick = { showCommunityDialog = false; val i = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/tikvultix_community")); runCatching { context.startActivity(i) } }) { Text("انضمام الآن", color = CrimsonPrimary, fontWeight = FontWeight.Bold) } }, dismissButton = { TextButton(onClick = { showCommunityDialog = false }) { Text("إلغاء") } })
+        AlertDialog(onDismissRequest = { showCommunityDialog = false }, title = { Text(context.getString(R.string.community_title), fontWeight = FontWeight.Bold) }, text = { Text(context.getString(R.string.community_message)) }, confirmButton = { TextButton(onClick = { showCommunityDialog = false; val i = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/tikvultix_community")); runCatching { context.startActivity(i) } }) { Text(context.getString(R.string.join_now), color = CrimsonPrimary, fontWeight = FontWeight.Bold) } }, dismissButton = { TextButton(onClick = { showCommunityDialog = false }) { Text(context.getString(R.string.cancel)) } })
     }
     if (showHowToDownloadDialog) {
-        AlertDialog(onDismissRequest = { showHowToDownloadDialog = false }, title = { Text("كيفية التحميل 💡", fontWeight = FontWeight.Bold) }, text = { Text("1. افتح TikTok واضغط مشاركة.\n2. اختر نسخ الرابط.\n3. افتح TikVultix واضغط تحميل.") }, confirmButton = { TextButton(onClick = { showHowToDownloadDialog = false }) { Text("فهمت ذلك", color = CrimsonPrimary, fontWeight = FontWeight.Bold) } })
+        AlertDialog(onDismissRequest = { showHowToDownloadDialog = false }, title = { Text(context.getString(R.string.how_to_download_title), fontWeight = FontWeight.Bold) }, text = { Text(context.getString(R.string.how_to_download_message)) }, confirmButton = { TextButton(onClick = { showHowToDownloadDialog = false }) { Text(context.getString(R.string.got_it), color = CrimsonPrimary, fontWeight = FontWeight.Bold) } })
     }
 }
