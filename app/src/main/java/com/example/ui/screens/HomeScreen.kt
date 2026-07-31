@@ -4,7 +4,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -61,10 +60,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.data.ParsedTikTokMedia
 import com.example.ui.components.AdMobBannerPlaceholder
 import com.example.ui.theme.CrimsonPrimary
@@ -113,7 +114,7 @@ fun HomeScreen(
                         .padding(12.dp)
                 ) {
                     Text(
-                        text = "أدخل رابط تيك توك للتنزيل ⚡",
+                        text = stringResource(R.string.enter_tiktok_url),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
@@ -130,7 +131,7 @@ fun HomeScreen(
                             onValueChange = onUrlInputChange,
                             placeholder = {
                                 Text(
-                                    text = "إلصق الرابط هنا...",
+                                    text = stringResource(R.string.paste_link_here),
                                     fontSize = 11.sp,
                                     color = Color.Gray
                                 )
@@ -144,7 +145,7 @@ fun HomeScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Clear,
-                                            contentDescription = "Clear",
+                                            contentDescription = stringResource(R.string.clear),
                                             tint = Color.Gray,
                                             modifier = Modifier.size(16.dp)
                                         )
@@ -166,7 +167,7 @@ fun HomeScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.ContentPaste,
-                                            contentDescription = "Paste",
+                                            contentDescription = stringResource(R.string.paste),
                                             tint = CrimsonPrimary,
                                             modifier = Modifier.size(16.dp)
                                         )
@@ -208,13 +209,13 @@ fun HomeScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
                                         imageVector = Icons.Default.Download,
-                                        contentDescription = "Download",
+                                        contentDescription = stringResource(R.string.download),
                                         tint = Color.White,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(3.dp))
                                     Text(
-                                        text = "تحميل",
+                                        text = stringResource(R.string.download),
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White
@@ -263,7 +264,7 @@ fun HomeScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = "Media",
+                                    contentDescription = stringResource(R.string.media),
                                     tint = Color.White,
                                     modifier = Modifier.size(28.dp)
                                 )
@@ -287,7 +288,7 @@ fun HomeScreen(
                                     color = TextSecondary
                                 )
                                 Text(
-                                    text = "الحجم: ${extractionResult.fileSize}",
+                                    text = "${stringResource(R.string.size)}: ${extractionResult.fileSize}",
                                     fontSize = 10.sp,
                                     color = CrimsonPrimary,
                                     fontWeight = FontWeight.Bold
@@ -303,7 +304,7 @@ fun HomeScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Text(
-                                        text = "جاري التحميل...",
+                                        text = stringResource(R.string.downloading),
                                         fontSize = 10.sp,
                                         color = TextPrimary,
                                         fontWeight = FontWeight.Bold
@@ -332,9 +333,9 @@ fun HomeScreen(
 
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             DownloadOptionButton(
-                                text = "بدون علامة مائية (HD)",
+                                text = stringResource(R.string.no_watermark_hd),
                                 icon = Icons.Default.Hd,
-                                badge = "الأكثر شعبية",
+                                badge = stringResource(R.string.most_popular),
                                 containerColor = CrimsonPrimary,
                                 contentColor = Color.White,
                                 tag = "btn_download_no_watermark",
@@ -342,7 +343,7 @@ fun HomeScreen(
                             )
 
                             DownloadOptionButton(
-                                text = "مع علامة مائية",
+                                text = stringResource(R.string.with_watermark),
                                 icon = Icons.Default.Videocam,
                                 containerColor = Color(0xFFF1F5F9),
                                 contentColor = TextPrimary,
@@ -351,7 +352,7 @@ fun HomeScreen(
                             )
 
                             DownloadOptionButton(
-                                text = "الصوت MP3",
+                                text = stringResource(R.string.audio_mp3),
                                 icon = Icons.Default.LibraryMusic,
                                 containerColor = Color(0xFFE0F7FA),
                                 contentColor = Color(0xFF00838F),
@@ -361,7 +362,7 @@ fun HomeScreen(
 
                             if (extractionResult.imageCovers.isNotEmpty()) {
                                 DownloadOptionButton(
-                                    text = "صور الألبوم",
+                                    text = stringResource(R.string.album_images),
                                     icon = Icons.Default.Image,
                                     containerColor = Color(0xFFF3E5F5),
                                     contentColor = Color(0xFF7B1FA2),
@@ -375,7 +376,7 @@ fun HomeScreen(
             }
         }
 
-        // 3. QUICK GUIDE - مع horizontalScroll
+        // 3. QUICK GUIDE
         item {
             Card(
                 modifier = Modifier
@@ -392,7 +393,7 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "تنزيل سريع بدون علامة مائية ⚡",
+                        text = stringResource(R.string.quick_download_no_watermark),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
@@ -409,19 +410,19 @@ fun HomeScreen(
                     ) {
                         GuideStepCircle(
                             icon = Icons.Default.Share,
-                            label = "مشاركة",
+                            label = stringResource(R.string.share_step),
                             stepNum = "1"
                         )
                         Text(text = "→", color = CrimsonPrimary, fontWeight = FontWeight.Bold)
                         GuideStepCircle(
                             icon = Icons.Default.ContentCopy,
-                            label = "نسخ الرابط",
+                            label = stringResource(R.string.copy_link_step),
                             stepNum = "2"
                         )
                         Text(text = "→", color = CrimsonPrimary, fontWeight = FontWeight.Bold)
                         GuideStepCircle(
                             icon = Icons.Default.Launch,
-                            label = "افتح التطبيق",
+                            label = stringResource(R.string.open_app_step),
                             stepNum = "3"
                         )
                     }
@@ -448,7 +449,7 @@ fun HomeScreen(
                     Text(text = "🎵", fontSize = 16.sp)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "افتح TikTok وانسخ الرابط",
+                        text = stringResource(R.string.open_tiktok_copy_link),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -468,7 +469,7 @@ fun HomeScreen(
                     .testTag("tutorial_tabs_section")
             ) {
                 Text(
-                    text = "دليل الشرح خطوة بخطوة 📘",
+                    text = stringResource(R.string.step_by_step_guide),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary
@@ -495,7 +496,7 @@ fun HomeScreen(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.Videocam, null, modifier = Modifier.size(14.dp))
                                 Spacer(modifier = Modifier.width(3.dp))
-                                Text("فيديو", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.video_tab), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     )
@@ -506,7 +507,7 @@ fun HomeScreen(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.Image, null, modifier = Modifier.size(14.dp))
                                 Spacer(modifier = Modifier.width(3.dp))
-                                Text("صورة", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.image_tab), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     )
@@ -517,7 +518,7 @@ fun HomeScreen(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.MusicNote, null, modifier = Modifier.size(14.dp))
                                 Spacer(modifier = Modifier.width(3.dp))
-                                Text("موسيقى", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.music_tab), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     )
@@ -527,28 +528,28 @@ fun HomeScreen(
 
                 when (selectedTutorialTab) {
                     0 -> TutorialStepCard(
-                        step1Title = "افتح فيديو تيك توك",
-                        step1Desc = "اضغط على زر المشاركة (Share) أسفل الفيديو.",
-                        step2Title = "انسخ رابط الفيديو",
-                        step2Desc = "انقر على أيقونة نسخ الرابط.",
-                        step3Title = "الصق الرابط هنا",
-                        step3Desc = "افتح TikVultix واضغط تحميل."
+                        step1Title = stringResource(R.string.video_step1_title),
+                        step1Desc = stringResource(R.string.video_step1_desc),
+                        step2Title = stringResource(R.string.video_step2_title),
+                        step2Desc = stringResource(R.string.video_step2_desc),
+                        step3Title = stringResource(R.string.video_step3_title),
+                        step3Desc = stringResource(R.string.video_step3_desc)
                     )
                     1 -> TutorialStepCard(
-                        step1Title = "افتح ألبوم صور تيك توك",
-                        step1Desc = "اختر منشور الصور الذي تريد حفظه.",
-                        step2Title = "انسخ رابط المشاركة",
-                        step2Desc = "اضغط مشاركة ثم نسخ الرابط.",
-                        step3Title = "تحميل الصور دفعة واحدة",
-                        step3Desc = "اضغط زر تحميل للحصول على كل الصور بجودة HD."
+                        step1Title = stringResource(R.string.image_step1_title),
+                        step1Desc = stringResource(R.string.image_step1_desc),
+                        step2Title = stringResource(R.string.image_step2_title),
+                        step2Desc = stringResource(R.string.image_step2_desc),
+                        step3Title = stringResource(R.string.image_step3_title),
+                        step3Desc = stringResource(R.string.image_step3_desc)
                     )
                     2 -> TutorialStepCard(
-                        step1Title = "افتح مقطع الصوت",
-                        step1Desc = "اضغط على اسطوانة الصوت في الأسفل.",
-                        step2Title = "انسخ رابط الصوت",
-                        step2Desc = "اضغط مشاركة ثم انسخ الرابط.",
-                        step3Title = "تحميل بصيغة MP3",
-                        step3Desc = "احفظ الصوت للاستماع بدون إنترنت."
+                        step1Title = stringResource(R.string.audio_step1_title),
+                        step1Desc = stringResource(R.string.audio_step1_desc),
+                        step2Title = stringResource(R.string.audio_step2_title),
+                        step2Desc = stringResource(R.string.audio_step2_desc),
+                        step3Title = stringResource(R.string.audio_step3_title),
+                        step3Desc = stringResource(R.string.audio_step3_desc)
                     )
                 }
             }
@@ -556,7 +557,7 @@ fun HomeScreen(
 
         // 6. AD
         item {
-            AdMobBannerPlaceholder(adTitle = "إعلان")
+            AdMobBannerPlaceholder(adTitle = stringResource(R.string.advertisement))
         }
 
         item { Spacer(modifier = Modifier.height(16.dp)) }
