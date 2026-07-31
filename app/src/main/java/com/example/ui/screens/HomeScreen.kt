@@ -56,11 +56,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.data.ParsedTikTokMedia
 import com.example.ui.theme.CrimsonPrimary
 import com.example.ui.theme.TextPrimary
@@ -84,276 +86,105 @@ fun HomeScreen(
     var showHowToDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp)
-            .testTag("home_screen_list"),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp).testTag("home_screen_list"),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item { Spacer(modifier = Modifier.height(4.dp)) }
 
-        // 1. INPUT SECTION
         item {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(3.dp, shape = RoundedCornerShape(16.dp))
-                    .testTag("url_input_card"),
+                modifier = Modifier.fillMaxWidth().shadow(3.dp, RoundedCornerShape(16.dp)).testTag("url_input_card"),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                Column(Modifier.fillMaxWidth().padding(12.dp)) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         OutlinedTextField(
                             value = urlInput,
                             onValueChange = onUrlInputChange,
-                            placeholder = {
-                                Text(
-                                    text = "الصق رابط TikTok هنا",
-                                    fontSize = 11.sp,
-                                    color = Color.Gray
-                                )
-                            },
+                            placeholder = { Text(stringResource(R.string.paste_link_here), fontSize = 11.sp, color = Color.Gray) },
                             trailingIcon = {
                                 if (urlInput.isNotEmpty()) {
-                                    IconButton(
-                                        onClick = onClearInput,
-                                        modifier = Modifier.size(32.dp)
-                                            .testTag("clear_url_button")
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Clear,
-                                            contentDescription = "Clear",
-                                            tint = Color.Gray,
-                                            modifier = Modifier.size(16.dp)
-                                        )
+                                    IconButton(onClick = onClearInput, modifier = Modifier.size(32.dp).testTag("clear_url_button")) {
+                                        Icon(Icons.Default.Clear, stringResource(R.string.clear), tint = Color.Gray, modifier = Modifier.size(16.dp))
                                     }
                                 } else {
-                                    IconButton(
-                                        onClick = {
-                                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                            val clip = clipboard.primaryClip
-                                            if (clip != null && clip.itemCount > 0) {
-                                                val text = clip.getItemAt(0).text?.toString() ?: ""
-                                                if (text.isNotEmpty()) {
-                                                    onUrlInputChange(text)
-                                                }
-                                            }
-                                        },
-                                        modifier = Modifier.size(32.dp)
-                                            .testTag("paste_clipboard_button")
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.ContentPaste,
-                                            contentDescription = "Paste",
-                                            tint = CrimsonPrimary,
-                                            modifier = Modifier.size(16.dp)
-                                        )
+                                    IconButton(onClick = {
+                                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                        val clip = clipboard.primaryClip
+                                        if (clip != null && clip.itemCount > 0) {
+                                            val text = clip.getItemAt(0).text?.toString() ?: ""
+                                            if (text.isNotEmpty()) onUrlInputChange(text)
+                                        }
+                                    }, modifier = Modifier.size(32.dp).testTag("paste_clipboard_button")) {
+                                        Icon(Icons.Default.ContentPaste, stringResource(R.string.paste), tint = CrimsonPrimary, modifier = Modifier.size(16.dp))
                                     }
                                 }
                             },
                             singleLine = true,
                             shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = CrimsonPrimary,
-                                unfocusedBorderColor = Color(0xFFE5E7EB),
-                                focusedContainerColor = Color(0xFFFAFAFA),
-                                unfocusedContainerColor = Color(0xFFFAFAFA)
-                            ),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(52.dp)
-                                .testTag("url_text_field")
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CrimsonPrimary, unfocusedBorderColor = Color(0xFFE5E7EB), focusedContainerColor = Color(0xFFFAFAFA), unfocusedContainerColor = Color(0xFFFAFAFA)),
+                            modifier = Modifier.weight(1f).height(52.dp).testTag("url_text_field")
                         )
-
                         Spacer(modifier = Modifier.width(6.dp))
-
                         Button(
-                            onClick = onExtractClick,
-                            enabled = !isExtracting,
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = CrimsonPrimary),
-                            modifier = Modifier
-                                .height(52.dp)
-                                .testTag("main_download_button")
+                            onClick = onExtractClick, enabled = !isExtracting,
+                            shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = CrimsonPrimary),
+                            modifier = Modifier.height(52.dp).testTag("main_download_button")
                         ) {
-                            if (isExtracting) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(18.dp),
-                                    color = Color.White,
-                                    strokeWidth = 2.dp
-                                )
-                            } else {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        imageVector = Icons.Default.Download,
-                                        contentDescription = "Download",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(3.dp))
-                                    Text(
-                                        text = "تحميل",
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
-                                }
+                            if (isExtracting) CircularProgressIndicator(Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp)
+                            else Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Download, stringResource(R.string.download), tint = Color.White, modifier = Modifier.size(16.dp))
+                                Spacer(Modifier.width(3.dp))
+                                Text(stringResource(R.string.download), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
                             }
                         }
                     }
-
                     if (errorMessage != null) {
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = errorMessage,
-                            color = Color.Red,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                        Spacer(Modifier.height(6.dp))
+                        Text(errorMessage, color = Color.Red, fontSize = 10.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             }
         }
 
-        // 2. DOWNLOAD RESULT CARD
         if (extractionResult != null) {
             item {
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(4.dp, shape = RoundedCornerShape(16.dp))
-                        .testTag("download_result_card"),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    modifier = Modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(16.dp)).testTag("download_result_card"),
+                    shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)
-                    ) {
+                    Column(Modifier.fillMaxWidth().padding(12.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(56.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(Color(0xFF1A1A2E)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = "Media",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(28.dp)
-                                )
+                            Box(Modifier.size(56.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF1A1A2E)), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.PlayArrow, stringResource(R.string.media), tint = Color.White, modifier = Modifier.size(28.dp))
                             }
-
-                            Spacer(modifier = Modifier.width(10.dp))
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = extractionResult.title,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextPrimary,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "${extractionResult.authorName} (${extractionResult.authorHandle})",
-                                    fontSize = 10.sp,
-                                    color = TextSecondary
-                                )
-                                Text(
-                                    text = "الحجم: ${extractionResult.fileSize}",
-                                    fontSize = 10.sp,
-                                    color = CrimsonPrimary,
-                                    fontWeight = FontWeight.Bold
-                                )
+                            Spacer(Modifier.width(10.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(extractionResult.title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                Spacer(Modifier.height(2.dp))
+                                Text("${extractionResult.authorName} (${extractionResult.authorHandle})", fontSize = 10.sp, color = TextSecondary)
+                                Text("${stringResource(R.string.size)}: ${extractionResult.fileSize}", fontSize = 10.sp, color = CrimsonPrimary, fontWeight = FontWeight.Bold)
                             }
                         }
-
                         if (isDownloading && downloadProgress != null) {
-                            Spacer(modifier = Modifier.height(10.dp))
+                            Spacer(Modifier.height(10.dp))
                             Column {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(
-                                        text = "جاري التحميل...",
-                                        fontSize = 10.sp,
-                                        color = TextPrimary,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = "${(downloadProgress * 100).toInt()}%",
-                                        fontSize = 10.sp,
-                                        color = CrimsonPrimary,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(stringResource(R.string.downloading), fontSize = 10.sp, color = TextPrimary, fontWeight = FontWeight.Bold)
+                                    Text("${(downloadProgress * 100).toInt()}%", fontSize = 10.sp, color = CrimsonPrimary, fontWeight = FontWeight.Bold)
                                 }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                LinearProgressIndicator(
-                                    progress = { downloadProgress },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(6.dp)
-                                        .clip(RoundedCornerShape(3.dp)),
-                                    color = CrimsonPrimary,
-                                    trackColor = Color(0xFFF1F5F9)
-                                )
+                                Spacer(Modifier.height(4.dp))
+                                LinearProgressIndicator(progress = { downloadProgress }, modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)), color = CrimsonPrimary, trackColor = Color(0xFFF1F5F9))
                             }
                         }
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
+                        Spacer(Modifier.height(12.dp))
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            DownloadOptionButton(
-                                text = "بدون علامة مائية (HD)",
-                                icon = Icons.Default.Hd,
-                                badge = "الأكثر شعبية",
-                                containerColor = CrimsonPrimary,
-                                contentColor = Color.White,
-                                tag = "btn_download_no_watermark",
-                                onClick = { onStartDownload("video", "no_watermark") }
-                            )
-
-                            DownloadOptionButton(
-                                text = "مع علامة مائية",
-                                icon = Icons.Default.Videocam,
-                                containerColor = Color(0xFFF1F5F9),
-                                contentColor = TextPrimary,
-                                tag = "btn_download_with_watermark",
-                                onClick = { onStartDownload("video", "with_watermark") }
-                            )
-
-                            DownloadOptionButton(
-                                text = "الصوت MP3",
-                                icon = Icons.Default.LibraryMusic,
-                                containerColor = Color(0xFFE0F7FA),
-                                contentColor = Color(0xFF00838F),
-                                tag = "btn_download_audio_mp3",
-                                onClick = { onStartDownload("audio", "audio_mp3") }
-                            )
-
+                            DownloadOptionButton(stringResource(R.string.no_watermark_hd), Icons.Default.Hd, stringResource(R.string.most_popular), CrimsonPrimary, Color.White, "btn_download_no_watermark") { onStartDownload("video", "no_watermark") }
+                            DownloadOptionButton(stringResource(R.string.with_watermark), Icons.Default.Videocam, null, Color(0xFFF1F5F9), TextPrimary, "btn_download_with_watermark") { onStartDownload("video", "with_watermark") }
+                            DownloadOptionButton(stringResource(R.string.audio_mp3), Icons.Default.LibraryMusic, null, Color(0xFFE0F7FA), Color(0xFF00838F), "btn_download_audio_mp3") { onStartDownload("audio", "audio_mp3") }
                             if (extractionResult.imageCovers.isNotEmpty()) {
-                                DownloadOptionButton(
-                                    text = "صور الألبوم",
-                                    icon = Icons.Default.Image,
-                                    containerColor = Color(0xFFF3E5F5),
-                                    contentColor = Color(0xFF7B1FA2),
-                                    tag = "btn_download_images_album",
-                                    onClick = { onStartDownload("image", "images_album") }
-                                )
+                                DownloadOptionButton(stringResource(R.string.album_images), Icons.Default.Image, null, Color(0xFFF3E5F5), Color(0xFF7B1FA2), "btn_download_images_album") { onStartDownload("image", "images_album") }
                             }
                         }
                     }
@@ -361,151 +192,79 @@ fun HomeScreen(
             }
         }
 
-        // 3. QUICK GUIDE
         item {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("quick_action_guide_card"),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                modifier = Modifier.fillMaxWidth().testTag("quick_action_guide_card"),
+                shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(1.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "تنزيل سريع بدون علامة مائية ⚡",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "بدون تسجيل دخول · بدون رسوم · بدون سجل",
-                        fontSize = 12.sp,
-                        color = TextSecondary,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        GuideStepCircle(Icons.Default.Share, "مشاركة", "1")
-                        GuideStepCircle(Icons.Default.ContentCopy, "نسخ الرابط", "2")
-                        GuideStepCircle(Icons.Default.Launch, "افتح التطبيق", "3")
+                Column(Modifier.fillMaxWidth().padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(stringResource(R.string.quick_download_no_watermark), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                    Spacer(Modifier.height(4.dp))
+                    Text(stringResource(R.string.no_login_no_fees), fontSize = 12.sp, color = TextSecondary, textAlign = TextAlign.Center)
+                    Spacer(Modifier.height(10.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+                        GuideStepCircle(Icons.Default.Share, stringResource(R.string.share_step))
+                        GuideStepCircle(Icons.Default.ContentCopy, stringResource(R.string.copy_link_step))
+                        GuideStepCircle(Icons.Default.Launch, stringResource(R.string.open_app_step))
                     }
                 }
             }
         }
 
-        // 4. OPEN TIKTOK BUTTON
         item {
             Button(
                 onClick = onOpenTikTokApp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .shadow(3.dp, shape = RoundedCornerShape(14.dp))
-                    .testTag("open_tiktok_button"),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                modifier = Modifier.fillMaxWidth().height(48.dp).shadow(3.dp, RoundedCornerShape(14.dp)).testTag("open_tiktok_button"),
+                shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(text = "🎵", fontSize = 16.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "افتح TikTok وانسخ الرابط",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    Text("🎵", fontSize = 16.sp)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.open_tiktok_copy_link), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }
 
-        // 5. رابط "عرض المزيد من الشروحات"
         item {
-            TextButton(
-                onClick = { showHowToDialog = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "عرض المزيد من الشروحات",
-                    color = CrimsonPrimary,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+            TextButton(onClick = { showHowToDialog = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.show_more_guides), color = CrimsonPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             }
         }
 
-        item { Spacer(modifier = Modifier.height(16.dp)) }
+        item { Spacer(Modifier.height(16.dp)) }
     }
 
     if (showHowToDialog) {
-        HowToDownloadDialog(
-            onDismiss = { showHowToDialog = false },
-            onOpenTikTok = {
-                showHowToDialog = false
-                onOpenTikTokApp()
-            }
-        )
+        HowToDownloadDialog(onDismiss = { showHowToDialog = false }, onOpenTikTok = { showHowToDialog = false; onOpenTikTokApp() })
     }
 }
 
 @Composable
 private fun HowToDownloadDialog(onDismiss: () -> Unit, onOpenTikTok: () -> Unit) {
     AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = Color.White,
-        shape = RoundedCornerShape(20.dp),
+        onDismissRequest = onDismiss, containerColor = Color.White, shape = RoundedCornerShape(20.dp),
         title = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("كيفية التحميل", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Default.Close, "إغلاق", tint = Color.Gray)
-                }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.how_to_download_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) { Icon(Icons.Default.Close, stringResource(R.string.close), tint = Color.Gray) }
             }
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                HowToStep(Icons.Default.Share, "1", "افتح تيك توك واختر الفيديو", "اذهب إلى TikTok واضغط على زر المشاركة (Share) على الفيديو المراد تحميله.")
-                HowToStep(Icons.Default.ContentCopy, "2", "انسخ رابط الفيديو", "من القائمة المنبثقة، اختر نسخ الرابط (Copy Link).")
-                HowToStep(Icons.Default.Launch, "3", "ارجع للتطبيق والصق الرابط", "افتح TikVultix وسيتم لصق الرابط تلقائياً. اضغط تحميل للتنزيل بدون علامة مائية.")
+                HowToStep(Icons.Default.Share, "1", stringResource(R.string.dialog_step1_title), stringResource(R.string.dialog_step1_desc))
+                HowToStep(Icons.Default.ContentCopy, "2", stringResource(R.string.dialog_step2_title), stringResource(R.string.dialog_step2_desc))
+                HowToStep(Icons.Default.Launch, "3", stringResource(R.string.dialog_step3_title), stringResource(R.string.dialog_step3_desc))
             }
         },
         confirmButton = {
-            Button(
-                onClick = onOpenTikTok,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
-            ) {
+            Button(onClick = onOpenTikTok, modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Black)) {
                 Text("🎵  ", fontSize = 16.sp)
-                Text("افتح TikTok وانسخ الرابط", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(stringResource(R.string.open_tiktok_copy_link), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
-                Text("إلغاء", color = Color.Gray, fontSize = 13.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                Text(stringResource(R.string.cancel), color = Color.Gray, fontSize = 13.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
         }
     )
@@ -513,54 +272,39 @@ private fun HowToDownloadDialog(onDismiss: () -> Unit, onOpenTikTok: () -> Unit)
 
 @Composable
 private fun HowToStep(icon: ImageVector, stepNumber: String, title: String, description: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFFF8F9FA)).padding(12.dp),
-        verticalAlignment = Alignment.Top
-    ) {
-        Box(modifier = Modifier.size(36.dp).clip(CircleShape).background(CrimsonPrimary), contentAlignment = Alignment.Center) {
-            Icon(icon, null, tint = Color.White, modifier = Modifier.size(18.dp))
-        }
-        Spacer(modifier = Modifier.width(10.dp))
+    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFFF8F9FA)).padding(12.dp), verticalAlignment = Alignment.Top) {
+        Box(Modifier.size(36.dp).clip(CircleShape).background(CrimsonPrimary), contentAlignment = Alignment.Center) { Icon(icon, null, tint = Color.White, modifier = Modifier.size(18.dp)) }
+        Spacer(Modifier.width(10.dp))
         Column {
             Text("$stepNumber. $title", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(Modifier.height(2.dp))
             Text(description, fontSize = 11.sp, color = TextSecondary)
         }
     }
 }
 
 @Composable
-private fun GuideStepCircle(icon: ImageVector, label: String, stepNum: String) {
+private fun GuideStepCircle(icon: ImageVector, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(64.dp)) {
-        Box(
-            modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFFFFF1F2)).border(1.5.dp, CrimsonPrimary, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
+        Box(Modifier.size(40.dp).clip(CircleShape).background(Color(0xFFFFF1F2)).border(1.5.dp, CrimsonPrimary, CircleShape), contentAlignment = Alignment.Center) {
             Icon(icon, label, tint = CrimsonPrimary, modifier = Modifier.size(18.dp))
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(Modifier.height(4.dp))
         Text(label, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = TextPrimary, maxLines = 1)
     }
 }
 
 @Composable
-private fun DownloadOptionButton(
-    text: String, icon: ImageVector, badge: String? = null,
-    containerColor: Color, contentColor: Color, tag: String, onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick, modifier = Modifier.fillMaxWidth().height(42.dp).testTag(tag),
-        shape = RoundedCornerShape(10.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColor)
-    ) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+private fun DownloadOptionButton(text: String, icon: ImageVector, badge: String?, containerColor: Color, contentColor: Color, tag: String, onClick: () -> Unit) {
+    Button(onClick = onClick, modifier = Modifier.fillMaxWidth().height(42.dp).testTag(tag), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColor)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(icon, text, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(Modifier.width(6.dp))
                 Text(text, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
             if (badge != null) {
-                Box(modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(Color.White.copy(alpha = 0.3f)).padding(horizontal = 5.dp, vertical = 1.dp)) {
+                Box(Modifier.clip(RoundedCornerShape(6.dp)).background(Color.White.copy(alpha = 0.3f)).padding(horizontal = 5.dp, vertical = 1.dp)) {
                     Text(badge, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = contentColor)
                 }
             }
