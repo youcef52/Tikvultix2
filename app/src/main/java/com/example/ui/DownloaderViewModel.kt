@@ -1,6 +1,11 @@
 package com.example.ui
 
 import android.app.Application
+import android.app.DownloadManager
+import android.content.Context
+import android.net.Uri
+import android.os.Environment
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.AppDatabase
@@ -8,6 +13,7 @@ import com.example.data.DownloadItem
 import com.example.data.DownloadRepository
 import com.example.data.ParsedTikTokMedia
 import com.example.data.TikTokApiService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,11 +22,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.UUID
 
 class DownloaderViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: DownloadRepository
     private val apiService = TikTokApiService()
+    private val context = getApplication<Application>()
 
     init {
         val database = AppDatabase.getDatabase(application)
@@ -34,7 +48,6 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
             initialValue = emptyList()
         )
 
-    // UI State
     private val _urlInput = MutableStateFlow("")
     val urlInput: StateFlow<String> = _urlInput.asStateFlow()
 
@@ -53,7 +66,6 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
-    // Settings & Toggles State
     private val _isDownloadWithoutLeaving = MutableStateFlow(true)
     val isDownloadWithoutLeaving: StateFlow<Boolean> = _isDownloadWithoutLeaving.asStateFlow()
 
@@ -69,11 +81,10 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
     private val _isPremium = MutableStateFlow(false)
     val isPremium: StateFlow<Boolean> = _isPremium.asStateFlow()
 
-    // Navigation State
-    private val _currentTab = MutableStateFlow(0) // 0: Home, 1: History
+    private val _currentTab = MutableStateFlow(0)
     val currentTab: StateFlow<Int> = _currentTab.asStateFlow()
 
-    private val _currentScreen = MutableStateFlow("main") // "main", "settings", "privacy"
+    private val _currentScreen = MutableStateFlow("main")
     val currentScreen: StateFlow<String> = _currentScreen.asStateFlow()
 
     fun onUrlInputChanged(newUrl: String) {
@@ -93,7 +104,7 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
     fun extractVideoInfo() {
         val url = _urlInput.value.trim()
         if (url.isEmpty()) {
-            _errorMessage.value = "الرجاء أدخل رابط تيك توك للتنزيل"
+            _errorMessage.value = "الرجاء إدخال رابط تيك توك للتنزيل"
             return
         }
 
@@ -128,29 +139,109 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
             _isDownloading.value = true
             _downloadProgress.value = 0f
 
-            // Simulate progress ticks
-            for (i in 1..10) {
-                delay(150)
-                _downloadProgress.value = i / 10f
+            val downloadUrl = when (mediaType) {
+                "video" -> if (option == "بدون علامة مائية") media.noWatermarkUrl else media.watermarkUrl
+                "audio" -> media.audioUrl
+                else -> media.noWatermarkUrl
+            }
+
+            if (downloadUrl.isEmpty()) {
+                _isDownloading.value = false
+                _errorMessage.value = "رابط التحميل غير متوفر"
+                return@launch
+            }
+
+            val success = downloadFile(downloadUrl, media, mediaType)
+
+            if (success) {
+                // حفظ السجل في قاعدة البيانات
+                val newItem = DownloadItem(
+                    originalUrl = _urlInput.value,
+                    title = media.title,
+                    authorName = media.authorName,
+                    authorHandle = media.authorHandle,
+                    thumbnailUrl = media.thumbnailUrl,
+                    mediaType = mediaType,
+                    noWatermarkUrl = media.noWatermarkUrl,
+                    watermarkUrl = media.watermarkUrl,
+                    audioUrl = media.audioUrl,
+                    fileSize = media.fileSize
+                )
+
+                withContext(Dispatchers.IO) {
+                    repository.saveDownload(newItem)
+                }
+
+                _downloadProgress.value = 1f
+                delay(500) // لحظة عشان يشوف المستخدم 100%
+                Toast.makeText(context, "تم التحميل بنجاح ✅", Toast.LENGTH_SHORT).show()
+            } else {
+                _errorMessage.value = "فشل تحميل الملف"
             }
 
             _isDownloading.value = false
+        }
+    }
 
-            // Save completed download item to Room database
-            val newItem = DownloadItem(
-                originalUrl = _urlInput.value,
-                title = media.title,
-                authorName = media.authorName,
-                authorHandle = media.authorHandle,
-                thumbnailUrl = media.thumbnailUrl,
-                mediaType = mediaType,
-                noWatermarkUrl = media.noWatermarkUrl,
-                watermarkUrl = media.watermarkUrl,
-                audioUrl = media.audioUrl,
-                fileSize = media.fileSize
-            )
+    private suspend fun downloadFile(fileUrl: String, media: ParsedTikTokMedia, mediaType: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = URL(fileUrl)
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.setRequestProperty("User-Agent", "Mozilla/5.0")
+                connection.connectTimeout = 30000
+                connection.readTimeout = 30000
+                connection.connect()
 
-            repository.saveDownload(newItem)
+                val fileSize = connection.contentLength.toLong()
+                val inputStream: InputStream = connection.inputStream
+
+                // تحديد المجلد واسم الملف
+                val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                if (!downloadDir.exists()) downloadDir.mkdirs()
+
+                val extension = when (mediaType) {
+                    "video" -> ".mp4"
+                    "audio" -> ".mp3"
+                    else -> ".mp4"
+                }
+
+                val safeFileName = media.title.replace(Regex("[^\\u0600-\\u06FF\\u0750-\\u077Fa-zA-Z0-9\\s]"), "")
+                    .take(50).trim() + "_${UUID.randomUUID().toString().take(8)}$extension"
+
+                val outputFile = File(downloadDir, safeFileName)
+                val outputStream = FileOutputStream(outputFile)
+
+                val buffer = ByteArray(8192)
+                var downloaded = 0L
+                var bytesRead: Int
+
+                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                    outputStream.write(buffer, 0, bytesRead)
+                    downloaded += bytesRead
+
+                    if (fileSize > 0) {
+                        val progress = (downloaded.toFloat() / fileSize.toFloat())
+                        _downloadProgress.value = progress
+                    }
+                }
+
+                outputStream.flush()
+                outputStream.close()
+                inputStream.close()
+                connection.disconnect()
+
+                // إشعار معرض الصور بالملف الجديد
+                val mediaScanIntent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+                mediaScanIntent.data = Uri.fromFile(outputFile)
+                context.sendBroadcast(mediaScanIntent)
+
+                true
+            } catch (e: Exception) {
+                e.printStackTrace()
+                false
+            }
         }
     }
 
