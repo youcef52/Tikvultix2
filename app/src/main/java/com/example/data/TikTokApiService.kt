@@ -1,90 +1,139 @@
 package com.example.data
 
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 
-/**
- * Service handling TikTok video metadata extraction and link parsing.
- * 
- * ============================================================================
- * 🛠 INSTRUCTIONS FOR INJECTING CUSTOM TIKTOK DOWNLOADER API ENDPOINTS:
- * ============================================================================
- * To replace simulated video parsing with your real backend/third-party API:
- * 1. Add Retrofit / Ktor client dependency if connecting to remote REST services.
- * 2. Set your API Base URL (e.g. "https://api.tikwm.com/api/" or RapidAPI endpoint).
- * 3. In `extractVideoInfo(url)`, execute your API GET/POST request passing the video link.
- * 4. Parse the returned JSON response fields (e.g., `data.play`, `data.wmplay`, `data.music`).
- * 5. Return the mapped `ParsedTikTokMedia` object below.
- * ============================================================================
- */
 data class ParsedTikTokMedia(
     val title: String,
     val authorName: String,
     val authorHandle: String,
     val thumbnailUrl: String,
-    val mediaType: String, // "video", "image", "audio"
+    val mediaType: String,
     val noWatermarkUrl: String,
     val watermarkUrl: String,
     val audioUrl: String,
     val fileSize: String,
-    val imageCovers: List<String> = emptyList()
+    val imageCovers: List<String> = emptyList(),
+    val sizeBytes: Long = 0 // الحجم بالبايت للاختيار بين الجودات
 )
 
 class TikTokApiService {
 
+    private val API_URL = "https://www.tikwm.com/api/"
+
     suspend fun extractVideoInfo(rawUrl: String): Result<ParsedTikTokMedia> {
-        // Simulate network API delay (1.2 seconds)
-        delay(1200)
+        return withContext(Dispatchers.IO) {
+            try {
+                val cleanUrl = rawUrl.trim()
+                
+                if (cleanUrl.isEmpty()) {
+                    return@withContext Result.failure(IllegalArgumentException("الرجاء إدخال رابط تيك توك صحيح"))
+                }
 
-        val cleanUrl = rawUrl.trim()
-        if (cleanUrl.isEmpty()) {
-            return Result.failure(IllegalArgumentException("الرجاء أدخل رابط تيك توك صحيح"))
+                val isValidTikTokUrl = cleanUrl.contains("tiktok.com", ignoreCase = true) ||
+                        cleanUrl.contains("vt.tiktok", ignoreCase = true) ||
+                        cleanUrl.contains("vm.tiktok", ignoreCase = true)
+
+                if (!isValidTikTokUrl) {
+                    return@withContext Result.failure(IllegalArgumentException("رابط غير صالح، يرجى التأكد من نسخ رابط تيك توك بشكل صحيح"))
+                }
+
+                // استدعاء API الحقيقي
+                val apiUrl = "$API_URL?url=$cleanUrl"
+                val url = URL(apiUrl)
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.setRequestProperty("User-Agent", "Mozilla/5.0")
+                connection.connectTimeout = 15000
+                connection.readTimeout = 15000
+
+                val responseCode = connection.responseCode
+                if (responseCode != 200) {
+                    return@withContext Result.failure(Exception("خطأ في الاتصال بالخادم (كود: $responseCode)"))
+                }
+
+                val reader = BufferedReader(InputStreamReader(connection.inputStream))
+                val response = StringBuilder()
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    response.append(line)
+                }
+                reader.close()
+                connection.disconnect()
+
+                val json = JSONObject(response.toString())
+                val code = json.optInt("code", -1)
+
+                if (code != 0) {
+                    val msg = json.optString("msg", "فشل استخراج بيانات الفيديو")
+                    return@withContext Result.failure(Exception(msg))
+                }
+
+                val data = json.getJSONObject("data")
+                val title = data.optString("title", "بدون عنوان")
+                val authorName = data.optJSONObject("author")?.optString("nickname", "مستخدم تيك توك") ?: "مستخدم تيك توك"
+                val authorHandle = data.optJSONObject("author")?.optString("unique_id", "@tiktok_user") ?: "@tiktok_user"
+                val thumbnailUrl = data.optString("cover", "")
+                val noWatermarkUrl = data.optString("play", "")
+                val watermarkUrl = data.optString("wmplay", "")
+                val audioUrl = data.optString("music", "")
+                val images = data.optJSONArray("images")
+
+                val mediaType: String
+                val imageCovers: List<String>
+
+                if (images != null && images.length() > 0) {
+                    // منشور صور
+                    mediaType = "image"
+                    val covers = mutableListOf<String>()
+                    for (i in 0 until images.length()) {
+                        covers.add(images.getString(i))
+                    }
+                    imageCovers = covers
+                } else if (noWatermarkUrl.isNotEmpty()) {
+                    mediaType = "video"
+                    imageCovers = emptyList()
+                } else {
+                    mediaType = "audio"
+                    imageCovers = emptyList()
+                }
+
+                val sizeBytes = data.optLong("size", 0)
+                val fileSize = formatFileSize(sizeBytes)
+
+                val parsedMedia = ParsedTikTokMedia(
+                    title = title,
+                    authorName = authorName,
+                    authorHandle = authorHandle,
+                    thumbnailUrl = thumbnailUrl,
+                    mediaType = mediaType,
+                    noWatermarkUrl = noWatermarkUrl,
+                    watermarkUrl = watermarkUrl,
+                    audioUrl = audioUrl,
+                    fileSize = fileSize,
+                    imageCovers = imageCovers,
+                    sizeBytes = sizeBytes
+                )
+
+                Result.success(parsedMedia)
+            } catch (e: Exception) {
+                Result.failure(Exception("فشل الاتصال: ${e.message}"))
+            }
         }
+    }
 
-        val isValidTikTokUrl = cleanUrl.contains("tiktok.com", ignoreCase = true) || 
-                               cleanUrl.contains("vt.tiktok", ignoreCase = true) ||
-                               cleanUrl.startsWith("http", ignoreCase = true)
-
-        if (!isValidTikTokUrl) {
-            return Result.failure(IllegalArgumentException("رابط غير صالح، يرجى التأكد من نسخ رابط تيك توك بشكل صحيح"))
+    private fun formatFileSize(bytes: Long): String {
+        if (bytes <= 0) return "غير معروف"
+        val mb = bytes / (1024.0 * 1024.0)
+        return if (mb < 1) {
+            "${bytes / 1024} KB"
+        } else {
+            String.format("%.1f MB", mb)
         }
-
-        // Generate parsed media metadata based on URL keywords or sample fallback
-        val isImagePost = cleanUrl.contains("photo") || cleanUrl.contains("image")
-        val isAudioOnly = cleanUrl.contains("music") || cleanUrl.contains("sound")
-
-        val title = when {
-            isImagePost -> "أحدث التحديات والتقليعات المميزة على تيك توك 📸✨"
-            isAudioOnly -> "صوت أصلي شائع - موسيقى تيك توك ترند 2026 🎵"
-            cleanUrl.contains("dance") -> "تحدي الرقص الفيروسي 💃🔥 #TikTokDance #Viral"
-            cleanUrl.contains("recipe") -> "وصفة طبخ سريعة ولذيذة في أقل من دقيقة 🍳🍕"
-            else -> "فيديو تيك توك مميز بدون علامة مائية 🚀 #تيك_توك #ترند"
-        }
-
-        val authorName = if (cleanUrl.contains("ar")) "أحمد العتيبي" else "Creative Creator"
-        val authorHandle = "@tiktok_creator_official"
-        val mediaType = when {
-            isImagePost -> "image"
-            isAudioOnly -> "audio"
-            else -> "video"
-        }
-
-        val parsedMedia = ParsedTikTokMedia(
-            title = title,
-            authorName = authorName,
-            authorHandle = authorHandle,
-            thumbnailUrl = "https://picsum.photos/seed/${cleanUrl.hashCode()}/400/600",
-            mediaType = mediaType,
-            noWatermarkUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-            watermarkUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-            audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-            fileSize = if (isImagePost) "4.2 MB" else "18.5 MB",
-            imageCovers = listOf(
-                "https://picsum.photos/seed/img1/600/600",
-                "https://picsum.photos/seed/img2/600/600",
-                "https://picsum.photos/seed/img3/600/600"
-            )
-        )
-
-        return Result.success(parsedMedia)
     }
 }
