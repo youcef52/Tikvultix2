@@ -34,9 +34,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.ui.theme.CrimsonPrimary
 import com.example.ui.theme.OfflineBannerBg
 import com.example.ui.theme.OfflineBannerText
@@ -53,7 +55,7 @@ fun TopAppBarHeader(
             .fillMaxWidth()
             .background(Color.White)
             .shadow(1.dp)
-            .windowInsetsPadding(WindowInsets.statusBars)  // ✅ هذا الجديد - يترك مسافة للساعة والبطارية
+            .windowInsetsPadding(WindowInsets.statusBars)
             .testTag("top_app_bar")
     ) {
         AnimatedVisibility(
@@ -72,13 +74,13 @@ fun TopAppBarHeader(
             ) {
                 Icon(
                     imageVector = Icons.Default.WifiOff,
-                    contentDescription = "No Connection",
+                    contentDescription = stringResource(R.string.no_internet),
                     tint = OfflineBannerText,
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "لا يوجد اتصال بالإنترنت",
+                    text = stringResource(R.string.no_internet),
                     color = OfflineBannerText,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
@@ -97,12 +99,11 @@ fun TopAppBarHeader(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
                     onClick = onOpenDrawer,
-                    modifier = Modifier.size(36.dp)
-                        .testTag("hamburger_menu_button")
+                    modifier = Modifier.size(36.dp).testTag("hamburger_menu_button")
                 ) {
                     Icon(
                         imageVector = Icons.Default.Menu,
-                        contentDescription = "Menu",
+                        contentDescription = stringResource(R.string.menu),
                         tint = Color(0xFF1A1A1A),
                         modifier = Modifier.size(22.dp)
                     )
@@ -110,18 +111,9 @@ fun TopAppBarHeader(
 
                 Spacer(modifier = Modifier.width(2.dp))
 
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = CrimsonPrimary,
-                    modifier = Modifier.size(28.dp)
-                ) {
+                Surface(shape = RoundedCornerShape(8.dp), color = CrimsonPrimary, modifier = Modifier.size(28.dp)) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "TV",
-                            color = Color.White,
-                            fontWeight = FontWeight.Black,
-                            fontSize = 12.sp
-                        )
+                        Text(text = "TV", color = Color.White, fontWeight = FontWeight.Black, fontSize = 12.sp)
                     }
                 }
 
@@ -135,7 +127,7 @@ fun TopAppBarHeader(
                         color = Color(0xFF1A1A1A)
                     )
                     Text(
-                        text = "تنزيل بدون علامة مائية",
+                        text = stringResource(R.string.download_no_watermark),
                         fontSize = 9.sp,
                         color = CrimsonPrimary,
                         fontWeight = FontWeight.Bold
@@ -153,7 +145,7 @@ fun TopAppBarHeader(
                         .testTag("promo_badge_button")
                 ) {
                     Text(
-                        text = "خصم 50% 💎",
+                        text = stringResource(R.string.discount_50),
                         color = CrimsonPrimary,
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Bold
