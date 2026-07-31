@@ -31,13 +31,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.R
 import com.example.ui.theme.CrimsonPrimary
-import com.example.ui.theme.CyanAccent
 import com.example.ui.theme.OfflineBannerBg
 import com.example.ui.theme.OfflineBannerText
 
@@ -52,10 +49,9 @@ fun TopAppBarHeader(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White)
-            .shadow(2.dp)
+            .shadow(1.dp)
             .testTag("top_app_bar")
     ) {
-        // Dynamic Offline Banner Alert
         AnimatedVisibility(
             visible = isOffline,
             enter = expandVertically(),
@@ -65,7 +61,7 @@ fun TopAppBarHeader(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(OfflineBannerBg)
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
                     .testTag("offline_banner_alert"),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
@@ -74,117 +70,105 @@ fun TopAppBarHeader(
                     imageVector = Icons.Default.WifiOff,
                     contentDescription = "No Connection",
                     tint = OfflineBannerText,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(14.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "لا يوجد اتصال بالإنترنت",
                     color = OfflineBannerText,
-                    fontSize = 13.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
         }
 
-        // Main App Header Bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp)
-                .padding(horizontal = 12.dp),
+                .height(48.dp)
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Right Side: Drawer Icon + App Title & Logo
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
                     onClick = onOpenDrawer,
-                    modifier = Modifier.testTag("hamburger_menu_button")
+                    modifier = Modifier.size(36.dp)
+                        .testTag("hamburger_menu_button")
                 ) {
                     Icon(
                         imageVector = Icons.Default.Menu,
                         contentDescription = "Menu",
                         tint = Color(0xFF1A1A1A),
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(22.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(2.dp))
 
-                // App Logo Badge
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(8.dp),
                     color = CrimsonPrimary,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier.size(28.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = "TV",
                             color = Color.White,
                             fontWeight = FontWeight.Black,
-                            fontSize = 15.sp
+                            fontSize = 12.sp
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(6.dp))
 
                 Column {
                     Text(
                         text = "TikVultix",
-                        fontSize = 18.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color(0xFF1A1A1A)
                     )
                     Text(
                         text = "تنزيل بدون علامة مائية",
-                        fontSize = 10.sp,
+                        fontSize = 9.sp,
                         color = CrimsonPrimary,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
 
-            // Left Side: Promotional Badge + TikTok launcher icon
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Promotional Discount Badge (50% OFF)
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RoundedCornerShape(16.dp))
                         .background(Color(0xFFFFF1F2))
                         .clickable { onOpenPremium() }
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .padding(horizontal = 6.dp, vertical = 3.dp)
                         .testTag("promo_badge_button")
                 ) {
                     Text(
                         text = "خصم 50% 💎",
                         color = CrimsonPrimary,
-                        fontSize = 11.sp,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(6.dp))
 
-                // TikTok Quick Launcher Icon
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(32.dp)
                         .clip(CircleShape)
                         .background(Color(0xFF000000))
                         .clickable { onOpenTikTok() }
-                        .padding(8.dp)
+                        .padding(6.dp)
                         .testTag("tiktok_quick_launcher"),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "🎵",
-                        fontSize = 16.sp
-                    )
+                    Text(text = "🎵", fontSize = 13.sp)
                 }
             }
         }
