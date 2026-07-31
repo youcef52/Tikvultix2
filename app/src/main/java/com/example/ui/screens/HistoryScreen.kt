@@ -77,7 +77,6 @@ fun HistoryScreen(
         else -> downloads
     }
 
-    // ✅ جميع النصوص تستخرج هنا خارج أي callback
     val downloadHistoryText = stringResource(R.string.download_history)
     val clearAllText = stringResource(R.string.clear_all)
     val filterAllText = stringResource(R.string.filter_all)
@@ -95,10 +94,7 @@ fun HistoryScreen(
     val deleteText = stringResource(R.string.delete)
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
-            .testTag("history_screen")
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp).testTag("history_screen")
     ) {
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -107,114 +103,59 @@ fun HistoryScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "$downloadHistoryText (${filteredList.size}) 📁",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = TextPrimary
-            )
-
+            Text("$downloadHistoryText (${filteredList.size}) 📁", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = TextPrimary)
             if (downloads.isNotEmpty()) {
-                TextButton(
-                    onClick = onClearAll,
-                    modifier = Modifier.testTag("clear_history_button")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.DeleteSweep,
-                        contentDescription = clearAllText,
-                        tint = CrimsonPrimary,
-                        modifier = Modifier.size(18.dp)
-                    )
+                TextButton(onClick = onClearAll, modifier = Modifier.testTag("clear_history_button")) {
+                    Icon(Icons.Default.DeleteSweep, clearAllText, tint = CrimsonPrimary, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = clearAllText,
-                        color = CrimsonPrimary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text(clearAllText, color = CrimsonPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FilterChipItem(label = filterAllText, isSelected = selectedFilter == "all", tag = "filter_chip_all", onClick = { selectedFilter = "all" })
-            FilterChipItem(label = "$filterVideoText 📹", isSelected = selectedFilter == "video", tag = "filter_chip_video", onClick = { selectedFilter = "video" })
-            FilterChipItem(label = "$filterImageText 🖼️", isSelected = selectedFilter == "image", tag = "filter_chip_image", onClick = { selectedFilter = "image" })
-            FilterChipItem(label = "$filterAudioText 🎵", isSelected = selectedFilter == "audio", tag = "filter_chip_audio", onClick = { selectedFilter = "audio" })
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChipItem(filterAllText, selectedFilter == "all", "filter_chip_all") { selectedFilter = "all" }
+            FilterChipItem("$filterVideoText 📹", selectedFilter == "video", "filter_chip_video") { selectedFilter = "video" }
+            FilterChipItem("$filterImageText 🖼️", selectedFilter == "image", "filter_chip_image") { selectedFilter = "image" }
+            FilterChipItem("$filterAudioText 🎵", selectedFilter == "audio", "filter_chip_audio") { selectedFilter = "audio" }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
         if (filteredList.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .testTag("empty_history_container"),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth().testTag("empty_history_container"), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(
-                        modifier = Modifier
-                            .size(90.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFFFF1F2)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.FolderOpen,
-                            contentDescription = emptyText,
-                            tint = CrimsonPrimary,
-                            modifier = Modifier.size(44.dp)
-                        )
+                    Box(Modifier.size(90.dp).clip(CircleShape).background(Color(0xFFFFF1F2)), contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.FolderOpen, emptyText, tint = CrimsonPrimary, modifier = Modifier.size(44.dp))
                     }
                     Spacer(modifier = Modifier.height(14.dp))
-                    Text(
-                        text = noDownloadsText,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
+                    Text(noDownloadsText, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = copyLinksText,
-                        fontSize = 12.sp,
-                        color = TextSecondary
-                    )
+                    Text(copyLinksText, fontSize = 12.sp, color = TextSecondary)
                 }
             }
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
+            LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(filteredList, key = { it.id }) { item ->
                     DownloadHistoryItemCard(
                         item = item,
-                        watchVideoText = watchVideoText,
-                        shareVideoText = shareVideoText,
+                        playText = playText,
                         shareText = shareText,
                         deleteText = deleteText,
-                        playText = playText,
+                        watchVideoText = watchVideoText,
+                        shareVideoText = shareVideoText,
                         onDelete = { onDeleteDownload(item) },
-                        onShare = { url, title ->
+                        onShare = { url ->
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, "$title: $url")
+                                putExtra(Intent.EXTRA_TEXT, "$watchVideoText: $url")
                             }
                             context.startActivity(Intent.createChooser(shareIntent, shareVideoText))
                         },
                         onPlay = { url ->
-                            val playIntent = Intent(Intent.ACTION_VIEW).apply {
-                                setDataAndType(Uri.parse(url), "video/*")
-                            }
+                            val playIntent = Intent(Intent.ACTION_VIEW).apply { setDataAndType(Uri.parse(url), "video/*") }
                             runCatching { context.startActivity(playIntent) }
                         }
                     )
@@ -223,114 +164,64 @@ fun HistoryScreen(
             }
         }
 
-        AdMobBannerPlaceholder(
-            adTitle = historyAdText,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
+        AdMobBannerPlaceholder(adTitle = historyAdText, modifier = Modifier.padding(bottom = 12.dp))
     }
 }
 
 @Composable
-private fun FilterChipItem(
-    label: String,
-    isSelected: Boolean,
-    tag: String,
-    onClick: () -> Unit
-) {
+private fun FilterChipItem(label: String, isSelected: Boolean, tag: String, onClick: () -> Unit) {
     FilterChip(
-        selected = isSelected,
-        onClick = onClick,
-        label = {
-            Text(
-                text = label,
-                fontSize = 12.sp,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-            )
-        },
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = CrimsonPrimary,
-            selectedLabelColor = Color.White,
-            containerColor = Color.White,
-            labelColor = TextPrimary
-        ),
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.testTag(tag)
+        selected = isSelected, onClick = onClick,
+        label = { Text(label, fontSize = 12.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium) },
+        colors = FilterChipDefaults.filterChipColors(selectedContainerColor = CrimsonPrimary, selectedLabelColor = Color.White, containerColor = Color.White, labelColor = TextPrimary),
+        shape = RoundedCornerShape(12.dp), modifier = Modifier.testTag(tag)
     )
 }
 
 @Composable
 private fun DownloadHistoryItemCard(
     item: DownloadItem,
-    watchVideoText: String,
-    shareVideoText: String,
+    playText: String,
     shareText: String,
     deleteText: String,
-    playText: String,
+    watchVideoText: String,
+    shareVideoText: String,
     onDelete: () -> Unit,
-    onShare: (String, String) -> Unit,
+    onShare: (String) -> Unit,
     onPlay: (String) -> Unit
 ) {
     val dateFormat = SimpleDateFormat("yyyy/MM/dd - hh:mm a", Locale.getDefault())
     val formattedDate = dateFormat.format(Date(item.downloadTimestamp))
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag("download_history_item_${item.id}"),
+        modifier = Modifier.fillMaxWidth().testTag("download_history_item_${item.id}"),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF1E1E24))
-                    .clickable { onPlay(item.noWatermarkUrl) },
-                contentAlignment = Alignment.Center
-            ) {
+        Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(60.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFF1E1E24)).clickable { onPlay(item.noWatermarkUrl) }, contentAlignment = Alignment.Center) {
                 val mediaIcon = when (item.mediaType) {
                     "image" -> Icons.Default.Image
                     "audio" -> Icons.Default.MusicNote
                     else -> Icons.Default.PlayArrow
                 }
-                Icon(
-                    imageVector = mediaIcon,
-                    contentDescription = playText,
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
-                )
+                Icon(mediaIcon, playText, tint = Color.White, modifier = Modifier.size(28.dp))
             }
-
             Spacer(modifier = Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = item.title,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Text(item.title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Spacer(modifier = Modifier.height(2.dp))
-                Text(text = item.authorName, fontSize = 11.sp, color = TextSecondary)
+                Text(item.authorName, fontSize = 11.sp, color = TextSecondary)
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = item.fileSize, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = CrimsonPrimary)
+                    Text(item.fileSize, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = CrimsonPrimary)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = formattedDate, fontSize = 9.sp, color = Color.Gray)
+                    Text(formattedDate, fontSize = 9.sp, color = Color.Gray)
                 }
             }
-
             Row {
-                IconButton(onClick = { onShare(item.originalUrl, watchVideoText) }, modifier = Modifier.size(32.dp)) {
+                IconButton(onClick = { onShare(item.originalUrl) }, modifier = Modifier.size(32.dp)) {
                     Icon(Icons.Default.Share, shareText, tint = CrimsonPrimary, modifier = Modifier.size(18.dp))
                 }
                 IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
