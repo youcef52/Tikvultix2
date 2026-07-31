@@ -1,7 +1,5 @@
 package com.example.ui.screens
 
-import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,9 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.AlertDialog
@@ -35,7 +31,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,16 +39,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.TextPrimary
-import com.example.ui.theme.TextSecondary
 
 data class LanguageItem(val code: String, val name: String)
 
@@ -98,103 +88,93 @@ fun SettingsScreen(
     val currentLangObj = ALL_LANGUAGES.find { it.code == currentLanguage }
     val currentLangDisplay = currentLangObj?.name ?: "العربية"
 
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .testTag("settings_screen"),
-            color = Color.White
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag("settings_screen"),
+        color = Color.White
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Column(
+            // AppBar Header
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // AppBar Header (RTL: Back button on the right, Title on right)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .padding(horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.testTag("settings_back_button")
                 ) {
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.testTag("settings_back_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFF1E1E24)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "الإعدادات",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E1E24)
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color(0xFF1E1E24)
                     )
                 }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "الإعدادات",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1E1E24)
+                )
+            }
 
-                HorizontalDivider(color = Color(0xFFF1F3F5), thickness = 1.dp)
+            HorizontalDivider(color = Color(0xFFF1F3F5), thickness = 1.dp)
 
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                // List Items Container
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    // Item 1: اللغة (Language)
-                    SettingsRowSimple(
-                        icon = Icons.Default.Public,
-                        title = "اللغة",
-                        subtitle = currentLangDisplay,
-                        onClick = { showLanguageDialog = true },
-                        tag = "setting_item_language"
-                    )
+            Column(modifier = Modifier.weight(1f)) {
+                SettingsRowSimple(
+                    icon = Icons.Default.Public,
+                    title = "اللغة",
+                    subtitle = currentLangDisplay,
+                    onClick = { showLanguageDialog = true },
+                    tag = "setting_item_language"
+                )
 
-                    HorizontalDivider(
-                        color = Color(0xFFF1F3F5),
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(start = 56.dp)
-                    )
+                HorizontalDivider(
+                    color = Color(0xFFF1F3F5),
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(start = 56.dp)
+                )
 
-                    // Item 2: الخصوصية (Privacy)
-                    SettingsRowSimple(
-                        icon = Icons.Default.Lock,
-                        title = "الخصوصية",
-                        subtitle = null,
-                        onClick = onOpenPrivacy,
-                        tag = "setting_item_privacy"
-                    )
+                SettingsRowSimple(
+                    icon = Icons.Default.Lock,
+                    title = "الخصوصية",
+                    subtitle = null,
+                    onClick = onOpenPrivacy,
+                    tag = "setting_item_privacy"
+                )
 
-                    HorizontalDivider(
-                        color = Color(0xFFF1F3F5),
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(start = 56.dp)
-                    )
-                }
+                HorizontalDivider(
+                    color = Color(0xFFF1F3F5),
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(start = 56.dp)
+                )
+            }
 
-                // Footer Text at the bottom
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "TikVultix v2.5.0(871)",
-                        fontSize = 12.sp,
-                        color = Color(0xFF9E9E9E),
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center
-                    )
-                }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "TikVultix v2.5.0(871)",
+                    fontSize = 12.sp,
+                    color = Color(0xFF9E9E9E),
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
 
-    // Comprehensive Language Selection Dialog
     if (showLanguageDialog) {
         LanguageSelectionDialog(
             currentLanguageCode = currentLanguage,
@@ -271,89 +251,85 @@ fun LanguageSelectionDialog(
 ) {
     var selectedCode by remember { mutableStateOf(currentLanguageCode) }
 
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            containerColor = Color.White,
-            shape = RoundedCornerShape(16.dp),
-            title = {
-                Text(
-                    text = "اللغة",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E1E24),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            text = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 340.dp)
-                ) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(ALL_LANGUAGES, key = { it.code }) { lang ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { selectedCode = lang.code }
-                                    .padding(vertical = 10.dp, horizontal = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = lang.name,
-                                    fontSize = 14.sp,
-                                    fontWeight = if (selectedCode == lang.code) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (selectedCode == lang.code) CrimsonActionColor else Color(0xFF222222)
-                                )
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color.White,
+        shape = RoundedCornerShape(16.dp),
+        title = {
+            Text(
+                text = "اللغة",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1E1E24),
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 340.dp)
+            ) {
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(ALL_LANGUAGES, key = { it.code }) { lang ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { selectedCode = lang.code }
+                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = lang.name,
+                                fontSize = 14.sp,
+                                fontWeight = if (selectedCode == lang.code) FontWeight.Bold else FontWeight.Normal,
+                                color = if (selectedCode == lang.code) CrimsonActionColor else Color(0xFF222222)
+                            )
 
-                                RadioButton(
-                                    selected = selectedCode == lang.code,
-                                    onClick = { selectedCode = lang.code },
-                                    colors = RadioButtonDefaults.colors(
-                                        selectedColor = CrimsonActionColor,
-                                        unselectedColor = Color(0xFFCCCCCC)
-                                    )
+                            RadioButton(
+                                selected = selectedCode == lang.code,
+                                onClick = { selectedCode = lang.code },
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = CrimsonActionColor,
+                                    unselectedColor = Color(0xFFCCCCCC)
                                 )
-                            }
-                            HorizontalDivider(color = Color(0xFFF5F5F5))
+                            )
                         }
-                    }
-                }
-            },
-            confirmButton = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    TextButton(
-                        onClick = { onLanguageSelected(selectedCode) },
-                        modifier = Modifier.testTag("language_dialog_confirm_button")
-                    ) {
-                        Text(
-                            text = "تغيير",
-                            color = CrimsonActionColor,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    TextButton(onClick = onDismiss) {
-                        Text(
-                            text = "إلغاء",
-                            color = Color.Gray,
-                            fontSize = 14.sp
-                        )
+                        HorizontalDivider(color = Color(0xFFF5F5F5))
                     }
                 }
             }
-        )
-    }
+        },
+        confirmButton = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                TextButton(
+                    onClick = { onLanguageSelected(selectedCode) },
+                    modifier = Modifier.testTag("language_dialog_confirm_button")
+                ) {
+                    Text(
+                        text = "تغيير",
+                        color = CrimsonActionColor,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                TextButton(onClick = onDismiss) {
+                    Text(
+                        text = "إلغاء",
+                        color = Color.Gray,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        }
+    )
 }
