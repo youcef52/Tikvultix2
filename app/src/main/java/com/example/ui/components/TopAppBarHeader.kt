@@ -34,11 +34,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.R
 import com.example.ui.theme.CrimsonPrimary
 import com.example.ui.theme.OfflineBannerBg
 import com.example.ui.theme.OfflineBannerText
@@ -58,113 +56,49 @@ fun TopAppBarHeader(
             .windowInsetsPadding(WindowInsets.statusBars)
             .testTag("top_app_bar")
     ) {
-        AnimatedVisibility(
-            visible = isOffline,
-            enter = expandVertically(),
-            exit = shrinkVertically()
-        ) {
+        AnimatedVisibility(visible = isOffline, enter = expandVertically(), exit = shrinkVertically()) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(OfflineBannerBg)
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
-                    .testTag("offline_banner_alert"),
+                modifier = Modifier.fillMaxWidth().background(OfflineBannerBg).padding(horizontal = 12.dp, vertical = 6.dp).testTag("offline_banner_alert"),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.WifiOff,
-                    contentDescription = stringResource(R.string.no_internet),
-                    tint = OfflineBannerText,
-                    modifier = Modifier.size(14.dp)
-                )
+                Icon(Icons.Default.WifiOff, "No Connection", tint = OfflineBannerText, modifier = Modifier.size(14.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = stringResource(R.string.no_internet),
-                    color = OfflineBannerText,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Text("لا يوجد اتصال بالإنترنت", color = OfflineBannerText, fontSize = 11.sp, fontWeight = FontWeight.Bold)
             }
         }
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .padding(horizontal = 8.dp),
+            modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(
-                    onClick = onOpenDrawer,
-                    modifier = Modifier.size(36.dp).testTag("hamburger_menu_button")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = stringResource(R.string.menu),
-                        tint = Color(0xFF1A1A1A),
-                        modifier = Modifier.size(22.dp)
-                    )
+                IconButton(onClick = onOpenDrawer, modifier = Modifier.size(36.dp).testTag("hamburger_menu_button")) {
+                    Icon(Icons.Default.Menu, "Menu", tint = Color(0xFF1A1A1A), modifier = Modifier.size(22.dp))
                 }
-
                 Spacer(modifier = Modifier.width(2.dp))
-
                 Surface(shape = RoundedCornerShape(8.dp), color = CrimsonPrimary, modifier = Modifier.size(28.dp)) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text(text = "TV", color = Color.White, fontWeight = FontWeight.Black, fontSize = 12.sp)
+                        Text("TV", color = Color.White, fontWeight = FontWeight.Black, fontSize = 12.sp)
                     }
                 }
-
                 Spacer(modifier = Modifier.width(6.dp))
-
-                Column {
-                    Text(
-                        text = "TikVultix",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF1A1A1A)
-                    )
-                    Text(
-                        text = stringResource(R.string.download_no_watermark),
-                        fontSize = 9.sp,
-                        color = CrimsonPrimary,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                Text("TikVultix", fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1A1A))
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFFFF1F2))
-                        .clickable { onOpenPremium() }
-                        .padding(horizontal = 6.dp, vertical = 3.dp)
-                        .testTag("promo_badge_button")
+                    modifier = Modifier.clip(RoundedCornerShape(16.dp)).background(Color(0xFFFFF1F2)).clickable { onOpenPremium() }.padding(horizontal = 6.dp, vertical = 3.dp).testTag("promo_badge_button")
                 ) {
-                    Text(
-                        text = stringResource(R.string.discount_50),
-                        color = CrimsonPrimary,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text("خصم 50% 💎", color = CrimsonPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                 }
-
                 Spacer(modifier = Modifier.width(6.dp))
-
                 Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFF000000))
-                        .clickable { onOpenTikTok() }
-                        .padding(6.dp)
-                        .testTag("tiktok_quick_launcher"),
+                    modifier = Modifier.size(32.dp).clip(CircleShape).background(Color(0xFF000000)).clickable { onOpenTikTok() }.padding(6.dp).testTag("tiktok_quick_launcher"),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "🎵", fontSize = 13.sp)
+                    Text("🎵", fontSize = 13.sp)
                 }
             }
         }
