@@ -1,5 +1,6 @@
 package com.example.data
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -30,7 +31,7 @@ class TikTokApiService {
         return withContext(Dispatchers.IO) {
             try {
                 val cleanUrl = rawUrl.trim()
-                
+
                 if (cleanUrl.isEmpty()) {
                     return@withContext Result.failure(IllegalArgumentException("الرجاء إدخال رابط تيك توك صحيح"))
                 }
@@ -81,7 +82,25 @@ class TikTokApiService {
                 val thumbnailUrl = data.optString("cover", "")
                 val noWatermarkUrl = data.optString("play", "")
                 val watermarkUrl = data.optString("wmplay", "")
-                val audioUrl = data.optString("music", "")
+
+                // ✅ FIX: tikwm sometimes returns the same video URL (or an
+                // empty string) in the "music" field when the clip uses an
+                // "original sound" with no separately hosted audio track.
+                // Without this check, the app would silently download the
+                // .mp4 video and mislabel it as an .mp3 audio file.
+                val rawAudioUrl = data.optString("music", "")
+                val audioUrl = when {
+                    rawAudioUrl.isBlank() -> {
+                        Log.w("TikTokApiService", "music field is empty — no separate audio track for this video")
+                        ""
+                    }
+                    rawAudioUrl == noWatermarkUrl || rawAudioUrl == watermarkUrl -> {
+                        Log.w("TikTokApiService", "music field matches the video URL — treating as no audio track available")
+                        ""
+                    }
+                    else -> rawAudioUrl
+                }
+
                 val images = data.optJSONArray("images")
 
                 val mediaType: String
