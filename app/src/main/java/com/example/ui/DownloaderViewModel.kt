@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -137,7 +138,6 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
             _isDownloading.value = true
             _downloadProgress.value = 0f
 
-            // ✅ تم إصلاح المقارنة
             val downloadUrl = when (mediaType) {
                 "video" -> {
                     if (option == "no_watermark" || option == "بدون علامة مائية") {
@@ -151,9 +151,17 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
                 else -> media.noWatermarkUrl
             }
 
+            // ✅ FIX: audioUrl can now legitimately be empty (see
+            // TikTokApiService fix) when a clip has no separate audio
+            // track. Give the user a clear, specific message instead of
+            // a generic "not available" error.
             if (downloadUrl.isEmpty()) {
                 _isDownloading.value = false
-                _errorMessage.value = "رابط التحميل غير متوفر"
+                _errorMessage.value = if (mediaType == "audio") {
+                    "هذا الفيديو لا يحتوي على مقطع صوتي منفصل قابل للتحميل"
+                } else {
+                    "رابط التحميل غير متوفر"
+                }
                 return@launch
             }
 
@@ -181,7 +189,9 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
                 delay(500)
                 Toast.makeText(context, "تم التحميل بنجاح ✅", Toast.LENGTH_SHORT).show()
             } else {
-                _errorMessage.value = "فشل تحميل الملف"
+                if (_errorMessage.value == null) {
+                    _errorMessage.value = "فشل تحميل الملف"
+                }
             }
 
             _isDownloading.value = false
@@ -190,6 +200,7 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
 
     private suspend fun downloadFile(fileUrl: String, media: ParsedTikTokMedia, mediaType: String): Boolean {
         return withContext(Dispatchers.IO) {
+            var outputFile: File? = null
             try {
                 val url = URL(fileUrl)
                 val connection = url.openConnection() as HttpURLConnection
@@ -198,6 +209,23 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
                 connection.connectTimeout = 30000
                 connection.readTimeout = 30000
                 connection.connect()
+
+                // Debug trace to make future issues easy to diagnose via Logcat.
+                Log.d("TikVultixDownload", "mediaType=$mediaType url=$fileUrl contentType=${connection.contentType}")
+
+                // ✅ FIX: verify the server actually sent an audio file when
+                // the user requested MP3. tikwm occasionally serves the
+                // video stream on the "music" URL — without this check the
+                // app would save it with an .mp3 name while it's really an
+                // .mp4, so it "downloads" but won't play as audio.
+                val contentType = connection.contentType ?: ""
+                if (mediaType == "audio" && contentType.contains("video", ignoreCase = true)) {
+                    connection.disconnect()
+                    withContext(Dispatchers.Main) {
+                        _errorMessage.value = "هذا الفيديو لا يحتوي على مقطع صوتي منفصل قابل للتحميل"
+                    }
+                    return@withContext false
+                }
 
                 val fileSize = connection.contentLength.toLong()
                 val inputStream: InputStream = connection.inputStream
@@ -214,7 +242,7 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
                 val safeFileName = media.title.replace(Regex("[^\\u0600-\\u06FF\\u0750-\\u077Fa-zA-Z0-9\\s]"), "")
                     .take(50).trim() + "_${UUID.randomUUID().toString().take(8)}$extension"
 
-                val outputFile = File(downloadDir, safeFileName)
+                outputFile = File(downloadDir, safeFileName)
                 val outputStream = FileOutputStream(outputFile)
 
                 val buffer = ByteArray(8192)
@@ -243,6 +271,8 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
                 true
             } catch (e: Exception) {
                 e.printStackTrace()
+                // Clean up a partially written file so it doesn't clutter Downloads.
+                outputFile?.let { if (it.exists()) it.delete() }
                 false
             }
         }
@@ -289,3 +319,4 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
         _currentScreen.value = screen
     }
 }
+
