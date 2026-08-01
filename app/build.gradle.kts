@@ -11,7 +11,7 @@ plugins {
 
 android {
     namespace = "com.example"
-    compileSdk { version = release(36) { minorApiLevel = 1 } }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.aistudio.tiktokdownloader.arxmpz"
@@ -31,40 +31,37 @@ android {
             keyAlias = "upload"
             keyPassword = System.getenv("KEY_PASSWORD")
         }
-        create("debugConfig") {
-            storeFile = file("${rootDir}/debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-        }
     }
 
     buildTypes {
         release {
             isCrunchPngs = false
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("release")
         }
-        debug { signingConfig = signingConfigs.getByName("debugConfig") }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
-    testOptions { unitTests { isIncludeAndroidResources = true } }
-}
 
-secrets {
-    propertiesFileName = ".env"
-    defaultPropertiesFileName = ".env.example"
-}
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 
-googleServices { missingGoogleServicesStrategy = MissingGoogleServicesStrategy.WARN }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+}
 
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
@@ -92,8 +89,12 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.okhttp)
     implementation(libs.retrofit)
+
+    // Media3 + FFmpeg
     implementation("androidx.media3:media3-exoplayer:1.4.1")
     implementation("androidx.media3:media3-ui:1.4.1")
+    implementation("com.arthenica:mobile-ffmpeg-full:4.4")
+
     testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(libs.androidx.core)
     testImplementation(libs.androidx.junit)
@@ -103,13 +104,16 @@ dependencies {
     testImplementation(libs.roborazzi)
     testImplementation(libs.roborazzi.compose)
     testImplementation(libs.roborazzi.junit.rule)
+
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.runner)
+
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
-    "ksp"(libs.androidx.room.compiler)
-    "ksp"(libs.moshi.kotlin.codegen)
+
+    ksp(libs.androidx.room.compiler)
+    ksp(libs.moshi.kotlin.codegen)
 }
