@@ -8,6 +8,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.arthenica.mobileffmpeg.Config
+import com.arthenica.mobileffmpeg.FFmpeg
 import com.example.data.AppDatabase
 import com.example.data.DownloadItem
 import com.example.data.DownloadRepository
@@ -138,6 +140,7 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
             _isDownloading.value = true
             _downloadProgress.value = 0f
 
+            // ✅ للصوت: استخدم الفيديو بدون علامة مائية وحوله إلى MP3
             val downloadUrl = when (mediaType) {
                 "video" -> {
                     if (option == "no_watermark" || option == "بدون علامة مائية") {
@@ -146,22 +149,17 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
                         media.watermarkUrl
                     }
                 }
-                "audio" -> media.audioUrl
+                "audio" -> {
+                    // استخدم الفيديو كمصدر للصوت
+                    media.noWatermarkUrl.ifEmpty { media.watermarkUrl }
+                }
                 "image" -> media.noWatermarkUrl
                 else -> media.noWatermarkUrl
             }
 
-            // ✅ FIX: audioUrl can now legitimately be empty (see
-            // TikTokApiService fix) when a clip has no separate audio
-            // track. Give the user a clear, specific message instead of
-            // a generic "not available" error.
             if (downloadUrl.isEmpty()) {
                 _isDownloading.value = false
-                _errorMessage.value = if (mediaType == "audio") {
-                    "هذا الفيديو لا يحتوي على مقطع صوتي منفصل قابل للتحميل"
-                } else {
-                    "رابط التحميل غير متوفر"
-                }
+                _errorMessage.value = "رابط التحميل غير متوفر"
                 return@launch
             }
 
@@ -188,10 +186,6 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
                 _downloadProgress.value = 1f
                 delay(500)
                 Toast.makeText(context, "تم التحميل بنجاح ✅", Toast.LENGTH_SHORT).show()
-            } else {
-                if (_errorMessage.value == null) {
-                    _errorMessage.value = "فشل تحميل الملف"
-                }
             }
 
             _isDownloading.value = false
@@ -200,7 +194,7 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
 
     private suspend fun downloadFile(fileUrl: String, media: ParsedTikTokMedia, mediaType: String): Boolean {
         return withContext(Dispatchers.IO) {
-            var outputFile: File? = null
+            var downloadedFile: File? = null
             try {
                 val url = URL(fileUrl)
                 val connection = url.openConnection() as HttpURLConnection
@@ -210,40 +204,18 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
                 connection.readTimeout = 30000
                 connection.connect()
 
-                // Debug trace to make future issues easy to diagnose via Logcat.
-                Log.d("TikVultixDownload", "mediaType=$mediaType url=$fileUrl contentType=${connection.contentType}")
-
-                // ✅ FIX: verify the server actually sent an audio file when
-                // the user requested MP3. tikwm occasionally serves the
-                // video stream on the "music" URL — without this check the
-                // app would save it with an .mp3 name while it's really an
-                // .mp4, so it "downloads" but won't play as audio.
-                val contentType = connection.contentType ?: ""
-                if (mediaType == "audio" && contentType.contains("video", ignoreCase = true)) {
-                    connection.disconnect()
-                    withContext(Dispatchers.Main) {
-                        _errorMessage.value = "هذا الفيديو لا يحتوي على مقطع صوتي منفصل قابل للتحميل"
-                    }
-                    return@withContext false
-                }
-
                 val fileSize = connection.contentLength.toLong()
                 val inputStream: InputStream = connection.inputStream
 
                 val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 if (!downloadDir.exists()) downloadDir.mkdirs()
 
-                val extension = when (mediaType) {
-                    "video" -> ".mp4"
-                    "audio" -> ".mp3"
-                    else -> ".mp4"
-                }
-
+                val tempExtension = ".mp4"
                 val safeFileName = media.title.replace(Regex("[^\\u0600-\\u06FF\\u0750-\\u077Fa-zA-Z0-9\\s]"), "")
-                    .take(50).trim() + "_${UUID.randomUUID().toString().take(8)}$extension"
+                    .take(50).trim() + "_${UUID.randomUUID().toString().take(8)}$tempExtension"
 
-                outputFile = File(downloadDir, safeFileName)
-                val outputStream = FileOutputStream(outputFile)
+                downloadedFile = File(downloadDir, safeFileName)
+                val outputStream = FileOutputStream(downloadedFile)
 
                 val buffer = ByteArray(8192)
                 var downloaded = 0L
@@ -264,15 +236,27 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
                 inputStream.close()
                 connection.disconnect()
 
+                // ✅ إذا كان النوع "audio"، حول الملف من MP4 إلى MP3
+                var finalFile = downloadedFile
+                if (mediaType == "audio") {
+                    val mp3FileName = safeFileName.replace(".mp4", ".mp3")
+                    val mp3File = File(downloadDir, mp3FileName)
+
+                    val result = FFmpeg.execute("-i ${downloadedFile.absolutePath} -vn -acodec libmp3lame -q:a 2 ${mp3File.absolutePath}")
+                    if (result == Config.RETURN_CODE_SUCCESS) {
+                        downloadedFile.delete() // حذف الملف المؤقت
+                        finalFile = mp3File
+                    }
+                }
+
                 val mediaScanIntent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-                mediaScanIntent.data = Uri.fromFile(outputFile)
+                mediaScanIntent.data = Uri.fromFile(finalFile)
                 context.sendBroadcast(mediaScanIntent)
 
                 true
             } catch (e: Exception) {
                 e.printStackTrace()
-                // Clean up a partially written file so it doesn't clutter Downloads.
-                outputFile?.let { if (it.exists()) it.delete() }
+                downloadedFile?.let { if (it.exists()) it.delete() }
                 false
             }
         }
@@ -319,4 +303,3 @@ class DownloaderViewModel(application: Application) : AndroidViewModel(applicati
         _currentScreen.value = screen
     }
 }
-
