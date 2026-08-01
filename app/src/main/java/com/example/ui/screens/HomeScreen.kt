@@ -93,6 +93,7 @@ fun HomeScreen(
     ) {
         item { Spacer(modifier = Modifier.height(8.dp)) }
 
+        // 1. INPUT SECTION - مكبر
         item {
             Card(
                 modifier = Modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(20.dp)).testTag("url_input_card"),
@@ -150,6 +151,7 @@ fun HomeScreen(
             }
         }
 
+        // 2. DOWNLOAD RESULT CARD
         if (extractionResult != null) {
             item {
                 Card(
@@ -158,6 +160,9 @@ fun HomeScreen(
                 ) {
                     Column(Modifier.fillMaxWidth().padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
+                            // ✅ Video thumbnail box: shows the actual pasted
+                            // video's cover image (thumbnailUrl) with a play
+                            // icon overlay, instead of a plain black box.
                             Box(
                                 modifier = Modifier.size(72.dp).clip(RoundedCornerShape(14.dp)).background(Color(0xFF1A1A2E)),
                                 contentAlignment = Alignment.Center
@@ -202,19 +207,7 @@ fun HomeScreen(
                         Spacer(Modifier.height(14.dp))
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             DownloadOptionButton(stringResource(R.string.no_watermark_hd), Icons.Default.Hd, stringResource(R.string.most_popular), CrimsonPrimary, Color.White, "btn_download_no_watermark") { onStartDownload("video", "no_watermark") }
-
-                            // ✅ زر "تحميل أي شيء" - يحمل المحتوى المتاح تلقائياً
-                            DownloadOptionButton(stringResource(R.string.download_anything), Icons.Default.Download, null, Color(0xFFF1F5F9), TextPrimary, "btn_download_anything") {
-                                val type = extractionResult.mediaType
-                                val option = when (type) {
-                                    "video" -> "no_watermark"
-                                    "image" -> "images_album"
-                                    "audio" -> "audio_mp3"
-                                    else -> "no_watermark"
-                                }
-                                onStartDownload(type, option)
-                            }
-
+                            DownloadOptionButton(stringResource(R.string.download_stories), Icons.Default.Image, null, Color(0xFFF1F5F9), TextPrimary, "btn_download_stories") { onStartDownload("video", "with_watermark") }
                             DownloadOptionButton(stringResource(R.string.audio_mp3), Icons.Default.LibraryMusic, null, Color(0xFFE0F7FA), Color(0xFF00838F), "btn_download_audio_mp3") { onStartDownload("audio", "audio_mp3") }
                             if (extractionResult.imageCovers.isNotEmpty()) {
                                 DownloadOptionButton(stringResource(R.string.album_images), Icons.Default.Image, null, Color(0xFFF3E5F5), Color(0xFF7B1FA2), "btn_download_images_album") { onStartDownload("image", "images_album") }
@@ -225,6 +218,7 @@ fun HomeScreen(
             }
         }
 
+        // 3. QUICK GUIDE - مكبر
         item {
             Card(
                 modifier = Modifier.fillMaxWidth().testTag("quick_action_guide_card"),
